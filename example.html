@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Better Autocomplete</title>
+
+<link rel="stylesheet" href="better-autocomplete.css" />
+
+<style>
+
+input, div {
+  position: relative;
+}
+
+</style>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="jquery.better-autocomplete.js"></script>
+<script>
+
+var cities = [
+  'Stockholm',
+  'New York',
+  'Oslo',
+  'San Fransisco',
+  'Säffle',
+  'Göteborg',
+  'Mogadishu',
+  'Washington',
+  'Madrid',
+  'Paris',
+  'Moscow'
+];
+
+$(document).ready(function() {
+
+  $('#city').betterAutocomplete('init', cities, { charLimit: 1 }, {
+    select: function(result) {
+      $('#city').blur();
+      alert('You selected ' + result.title);
+    }
+  });
+
+});
+
+</script>
+</head>
+<body>
+<h1>Better Autocomplete examples</h1>
+
+<h2>Local source</h2>
+
+<form>
+	<label for="city">Please select a city</label><br />
+	<input type="text" id="city" name="city" /><br />
+</form>
+
+</body>
+</html>
