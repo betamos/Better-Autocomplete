@@ -38,10 +38,40 @@ var cities = [
 
 $(document).ready(function() {
 
+  // Local source
   $('#city').betterAutocomplete('init', cities, { charLimit: 1 }, {
     select: function(result) {
       $('#city').blur();
       alert('You selected ' + result.title);
+    }
+  });
+
+  // A remote JSON resource
+  $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', { maxHeight: 200 }, {
+    constructURL: function(path, search) {
+      return path + '?q=' + encodeURIComponent(search);
+    },
+    fetchRemoteResults: function(url, completeCallback, timeout) {
+      var xhr = $.ajax({
+        url: url,
+        dataType: 'json',
+        timeout: timeout,
+        success: function(data, textStatus) {
+          completeCallback(data.geonames);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          completeCallback();
+        }
+      });
+    },
+    renderResult: function(result) {
+      output = '<h4>' + result.name + '</h4>';
+      output += '<p>' + result.countryName + ' <em>(' + result.fclName + ')</em></p>';
+      return output;
+    },
+    select: function(result) {
+      $('#geonames').blur();
+      alert('You selected ' + result.name);
     }
   });
 
@@ -55,8 +85,15 @@ $(document).ready(function() {
 <h2>Local source</h2>
 
 <form>
-	<label for="city">Please select a city</label><br />
-	<input type="text" id="city" name="city" /><br />
+  <label for="city">Please select a city</label><br />
+  <input type="text" id="city" name="city" /><br />
+</form>
+
+<h2>Remote source</h2>
+
+<form>
+  <label for="geonames">Search geonames.org</label><br />
+  <input type="text" id="geonames" name="geonames" /><br />
 </form>
 
 </body>
