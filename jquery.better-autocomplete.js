@@ -150,6 +150,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * Gets fired when the user selects a result by clicking or using the
      * keyboard to select an element.
      *
+     * <br /><br /><em>Default behavior: Simply blurs the input field.</em>
+     *
      * @param {Result} result
      *   The result object that was selected.
      */
@@ -160,6 +162,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     /**
      * Given a result object, render it to HTML. This callback can be viewed as
      * a theming function.
+     *
+     * <br /><br /><em>Default behavior: Wraps result.title in an h4 tag, and
+     * result.description in a p tag. Note that no sanitization of malicious
+     * scripts is done here. Whatever is within the title/description is just
+     * printed out. May contain HTML.</em>
      *
      * @param {Object} result
      *   The result object that should be rendered.
@@ -178,34 +185,46 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     },
 
     /**
-     * Retrieve local results from the local resource by providing a search
-     * term.
+     * Retrieve local results from the local resource by providing a query
+     * string.
      *
-     * @param {String} search
-     *   The search term, unescaped. May contain any UTF-8 character.
+     * <br /><br /><em>Default behavior: Automatically handles arrays, if the
+     * data inside each element is either a plain string or a result object.
+     * If it is a result object, it will match the query string against the
+     * title and description property.</em>
+     *
+     * @param {String} query
+     *   The query string, unescaped. May contain any UTF-8 character.
      *
      * @param {Object} resource
      *   The resource provided in the {@link jQuery.betterAutocomplete} init
      *   constructor.
+     *
+     * @return {Array}
+     *   A flat array containing pure result objects.
      */
-    getLocalResults: function(search, resource) {
+    queryLocalResults: function(query, resource) {
       if (!(resource instanceof Array)) {
         // Per default Better Autocomplete only handles arrays of data
         return;
       }
-      search = search.toLowerCase();
+      query = query.toLowerCase();
       var results = [];
       $.each(resource, function(i, value) {
         switch (typeof value) {
         case 'string': // Flat array of strings
-          if (value.toLowerCase().indexOf(search) >= 0) {
+          if (value.toLowerCase().indexOf(query) >= 0) {
             // Match found
             results.push({ title: value });
           }
           break;
         case 'object': // Array of result objects
-          if (typeof value.title != 'undefined' && value.title.toLowerCase().indexOf(search) >= 0) {
+          if (typeof value.title != 'undefined' && value.title.toLowerCase().indexOf(query) >= 0) {
             // Match found in title field
+            results.push(value);
+          }
+          else if (typeof value.description != 'undefined' && value.description.toLowerCase().indexOf(query) >= 0) {
+            // Match found in description field
             results.push(value);
           }
           break;
@@ -218,6 +237,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * Fetch remote result data and return it using completeCallback when
      * fetching is finished. Must be asynchronous in order to not freeze the
      * Better Autocomplete instance.
+     *
+     * <br /><br /><em>Default behavior: Fetches JSON data from the url, using
+     * the jQuery.ajax() method. Errors are ignored.</em>
      *
      * @param {String} url
      *   The URL to fetch data from.
@@ -246,7 +268,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
     /**
      * Process remote fetched data by extracting an array of result objects
-     * from it.
+     * from it. This callback is useful if the fetched data is not the plain
+     * results array, but a more complicated object which does contain results.
+     *
+     * <br /><br /><em>Default behavior: Just returns the plain data.</em>
      *
      * @param {mixed} data
      *   The raw data recieved from the server.
@@ -260,6 +285,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
     /**
      * Called when remote fetching begins.
+     *
+     * <br /><br /><em>Default behavior: Adds the CSS class "fetching" to the
+     * input field, for styling purposes.</em>
      */
     beginFetching: function() {
       $input.addClass('fetching');
@@ -268,6 +296,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     /**
      * Called when fetching is finished. All active requests must finish before
      * this function is called.
+     *
+     * <br /><br /><em>Default behavior: Removes the "fetching" class.</em>
      */
     finishFetching: function() {
       $input.removeClass('fetching');
@@ -276,27 +306,30 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     /**
      * Construct the remote fetching URL.
      *
+     * <br /><br /><em>Default behavior: Adds "?q=query" to the path. The query
+     * string is URL encoded.</em>
+     *
      * @param {String} path
      *   The path given in the {@link jQuery.betterAutocomplete} constructor.
      *
-     * @param {String} search
-     *   The raw search string. Remember to URL encode this to prevent illegal
+     * @param {String} query
+     *   The raw query string. Remember to URL encode this to prevent illegal
      *   character errors.
      *
      * @returns {String}
      *   The URL, ready for fetching.
      */
-    constructURL: function(path, search) {
-      return path + '?s=' + encodeURIComponent(search);
+    constructURL: function(path, query) {
+      return path + '?q=' + encodeURIComponent(query);
     }
   }, callbacks);
 
   var self = this,
-    lastRenderedSearch = '',
+    lastRenderedQuery = '',
     results = {}, // Caching dababase of search results.
     userString = $input.val(), // Current input string,
     timer, // Used for options.delay
-    activeSearchCount = 0,
+    activeRemoteCalls = 0,
     disableMouseHighlight = false,
     inputEvents = {},
     isLocal = (typeof resource != 'string');
@@ -363,7 +396,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     }
     else if (options.selectKeys.indexOf(event.keyCode) >= 0) {
       // Only hijack the event if selecting is possible or pending action.
-      if (select() || activeSearchCount >= 1 || timer !== null) {
+      if (select() || activeRemoteCalls >= 1 || timer !== null) {
         return false;
       }
       else {
@@ -502,27 +535,27 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Fetch results asynchronously via AJAX.
    * Errors are ignored.
    *
-   * @param search
-   *   The search string
+   * @param query
+   *   The query string
    */
-  var fetchResults = function(search) {
+  var fetchResults = function(query) {
     // Synchronously fetch local data
     if (isLocal) {
-      results[search] = callbacks.getLocalResults(search, resource);
+      results[query] = callbacks.queryLocalResults(query, resource);
       parseResults();
     }
     else {
-      activeSearchCount++;
-      var url = callbacks.constructURL(resource, search);
+      activeRemoteCalls++;
+      var url = callbacks.constructURL(resource, query);
       callbacks.beginFetching();
       callbacks.fetchRemoteData(url, function(data) {
         var searchResults = callbacks.processRemoteData(data);
         if (typeof searchResults == 'undefined' || !(searchResults instanceof Array)) {
           searchResults = [];
         }
-        results[search] = searchResults;
-        activeSearchCount--;
-        if (activeSearchCount == 0) {
+        results[query] = searchResults;
+        activeRemoteCalls--;
+        if (activeRemoteCalls == 0) {
           callbacks.finishFetching();
         }
         parseResults();
@@ -560,7 +593,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       return;
     }
     // Check if already rendered
-    if (lastRenderedSearch == $input.val()) {
+    if (lastRenderedQuery == $input.val()) {
       $wrapper.show();
       return;
     }
@@ -568,7 +601,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     if (needsFetching()) {
       return;
     }
-    lastRenderedSearch = $input.val();
+    lastRenderedQuery = $input.val();
 
     if (renderResults()) {
       setHighlighted(0);
@@ -577,7 +610,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   /**
-   * Generate DOM result items from the current search using the results cache
+   * Generate DOM result items from the current query using the results cache
    * 
    * @todo Grouping of items even if they are recieved in an arbitrary order?
    *
