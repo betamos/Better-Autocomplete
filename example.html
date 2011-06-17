@@ -34,15 +34,48 @@ var cities = [
   'Washington',
   'Madrid',
   'Paris',
+  'Arboga',
   'Moscow'
+];
+
+var colors = [
+	{
+	  title: 'Red',
+	  description: 'The color of the heart.'
+	},
+  'Yellow', // You can even mix real result objects with plain strings
+  {
+    title: 'Green',
+    description: 'If you look at your plants, they will likely be green.'
+  },
+  {
+    title: 'Pink',
+    description: 'For ponies, it is a <em>very common</em> hair color.'
+  },
+  {
+    title: 'Blue',
+    description: 'Color of the sky and the ocean, what else can I say?'
+  },
+  {
+    title: 'Beer',
+    description: 'I know, I know, it may not be a color, but who cares? This is a demonstration and I wan\'t to have a long text that wraps.'
+  }
 ];
 
 $(document).ready(function() {
 
-  // Local source
+  //Local source, string array
   $('#city').betterAutocomplete('init', cities, { charLimit: 1 }, {
     select: function(result) {
       $('#city').blur();
+      alert('You selected ' + result.title);
+    }
+  });
+
+  // Local source, results objects array
+  $('#color').betterAutocomplete('init', colors, { charLimit: 1 }, {
+    select: function(result) {
+      $('#color').blur();
       alert('You selected ' + result.title);
     }
   });
@@ -51,19 +84,6 @@ $(document).ready(function() {
   $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', { maxHeight: 200 }, {
     constructURL: function(path, search) {
       return path + '?q=' + encodeURIComponent(search);
-    },
-    fetchRemoteData: function(url, completeCallback, timeout) {
-      var xhr = $.ajax({
-        url: url,
-        dataType: 'json',
-        timeout: timeout,
-        success: function(data, textStatus) {
-          completeCallback(data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          completeCallback();
-        }
-      });
     },
     processRemoteData: function(data) {
       return data.geonames;
@@ -86,11 +106,18 @@ $(document).ready(function() {
 <body>
 <h1>Better Autocomplete examples</h1>
 
-<h2>Local source</h2>
+<h2>Local source, flat string array</h2>
 
 <form>
   <label for="city">Please select a city</label><br />
   <input type="text" id="city" name="city" /><br />
+</form>
+
+<h2>Local source, array of result objects</h2>
+
+<form>
+  <label for="color">Please select a color</label><br />
+  <input type="text" id="color" name="color" /><br />
 </form>
 
 <h2>Remote source</h2>
