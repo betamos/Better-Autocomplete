@@ -53,8 +53,6 @@
  *   </li><li>
  *     selectKeys: (default=[9, 13]) The key codes for keys which will select
  *     the current highlighted element. The defaults are tab, enter.
- *   </li><li>
- *     local
  *   </li></ul>
  *
  * @param {Object} [callbacks]
@@ -127,8 +125,6 @@ $.fn.betterAutocomplete = function(method) {
  *
  * @param $input
  *   A single input element wrapped in jQuery
- *
- * @todo Remove local option
  */
 var BetterAutocomplete = function($input, resource, options, callbacks) {
 
@@ -137,8 +133,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     delay: 250, // milliseconds
     maxHeight: 330, // px
     remoteTimeout: 5000, // milliseconds
-    selectKeys: [9, 13], // [tab, enter]
-    local: (typeof resource != 'string') // A local resource
+    selectKeys: [9, 13] // [tab, enter]
   }, options);
 
   /**
@@ -192,20 +187,17 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * @param {Object} resource
      *   The resource provided in the {@link jQuery.betterAutocomplete} init
      *   constructor.
-     *
-     * @todo Change name to getLocalResults
      */
-    fetchLocalResults: function(search, resource) {
+    getLocalResults: function(search, resource) {
+      search = search.toLowerCase();
       var results = [];
       if (resource instanceof Array) {
-        // Escape search string to use in regex.
-        search = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
         $.each(resource, function(i, value) {
           if (typeof value != 'string') {
             return; // continue
           }
           // Match found
-          if (new RegExp(search, 'i').test(value)) {
+          if (value.toLowerCase().indexOf(search) >= 0) {
             results.push({ title: value });
           }
         });
@@ -228,11 +220,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * @param {Number} timeout
      *   The preferred timeout for the request. This callback should respect
      *   the timeout.
-     *
-     * @todo Remove var = xhr, add processRemoteData callback, change name to fetchRemoteData
      */
-    fetchRemoteResults: function(url, completeCallback, timeout) {
-      var xhr = $.ajax({
+    fetchRemoteData: function(url, completeCallback, timeout) {
+      $.ajax({
         url: url,
         dataType: 'json',
         timeout: timeout,
@@ -243,6 +233,20 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
           completeCallback();
         }
       });
+    },
+
+    /**
+     * Process remote fetched data by extracting an array of result objects
+     * from it.
+     *
+     * @param {mixed} data
+     *   The raw data recieved from the server.
+     *
+     * @returns {Array}
+     *   A flat array containing result objects.
+     */
+    processRemoteData: function(data) {
+      return data;
     },
 
     /**
@@ -285,7 +289,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     timer, // Used for options.delay
     activeSearchCount = 0,
     disableMouseHighlight = false,
-    inputEvents = {};
+    inputEvents = {},
+    isLocal = (typeof resource != 'string');
 
   var $wrapper = $('<div />')
     .addClass('better-autocomplete')
@@ -367,7 +372,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // If the results can't be displayed we must fetch them, then display
     if (needsFetching()) {
       $resultsList.empty();
-      if (options.local) {
+      if (isLocal) {
         fetchResults($input.val());
       }
       else {
@@ -493,15 +498,16 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    */
   var fetchResults = function(search) {
     // Synchronously fetch local data
-    if (options.local) {
-      results[search] = callbacks.fetchLocalResults(search, resource);
+    if (isLocal) {
+      results[search] = callbacks.getLocalResults(search, resource);
       parseResults();
     }
     else {
       activeSearchCount++;
       var url = callbacks.constructURL(resource, search);
       callbacks.beginFetching();
-      callbacks.fetchRemoteResults(url, function(searchResults) {
+      callbacks.fetchRemoteData(url, function(data) {
+        var searchResults = callbacks.processRemoteData(data);
         if (typeof searchResults == 'undefined' || !(searchResults instanceof Array)) {
           searchResults = [];
         }

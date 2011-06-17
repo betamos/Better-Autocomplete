@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Better Autocomplete</title>
 
 <link rel="stylesheet" href="better-autocomplete.css" />
@@ -51,18 +52,21 @@ $(document).ready(function() {
     constructURL: function(path, search) {
       return path + '?q=' + encodeURIComponent(search);
     },
-    fetchRemoteResults: function(url, completeCallback, timeout) {
+    fetchRemoteData: function(url, completeCallback, timeout) {
       var xhr = $.ajax({
         url: url,
         dataType: 'json',
         timeout: timeout,
         success: function(data, textStatus) {
-          completeCallback(data.geonames);
+          completeCallback(data);
         },
         error: function(jqXHR, textStatus, errorThrown) {
           completeCallback();
         }
       });
+    },
+    processRemoteData: function(data) {
+      return data.geonames;
     },
     renderResult: function(result) {
       output = '<h4>' + result.name + '</h4>';
