@@ -84,11 +84,14 @@ $(document).ready(function() {
 
   // A remote JSON resource
   $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', { maxHeight: 200 }, {
-    constructURL: function(path, search) {
-      return path + '?q=' + encodeURIComponent(search);
-    },
     processRemoteData: function(data) {
-      return data.geonames;
+      if (typeof data != 'undefined' && data instanceof Object &&
+          typeof data.geonames != 'undefined' && data.geonames instanceof Array) {
+        return data.geonames;
+      }
+      else {
+        return [];
+      }
     },
     renderResult: function(result) {
       output = '<h4>' + result.name + '</h4>';

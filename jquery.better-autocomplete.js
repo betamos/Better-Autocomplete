@@ -45,6 +45,8 @@
  *     A typical use case for this limit is to reduce server load.
  *   </li><li>
  *     delay: (default=250) The time in ms between last keypress and AJAX call.
+ *     Typically used to prevent looking up irrelevant strings while the user
+ *     is still typing.
  *   </li><li>
  *     maxHeight: (default=330) The maximum height in pixels for the
  *     autocomplete list.
@@ -271,16 +273,22 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * from it. This callback is useful if the fetched data is not the plain
      * results array, but a more complicated object which does contain results.
      *
-     * <br /><br /><em>Default behavior: Just returns the plain data.</em>
+     * <br /><br /><em>Default behavior: If the data is defined and is an
+     * array, return it. Otherwise return an empty array.</em>
      *
      * @param {mixed} data
      *   The raw data recieved from the server.
      *
      * @returns {Array}
-     *   A flat array containing result objects.
+     *   A flat array containing result objects. Must return an array.
      */
     processRemoteData: function(data) {
-      return data;
+      if (typeof data != 'undefined' && data instanceof Array) {
+        return data;
+      }
+      else {
+        return [];
+      }
     },
 
     /**
