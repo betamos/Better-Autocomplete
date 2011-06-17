@@ -189,19 +189,28 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      *   constructor.
      */
     getLocalResults: function(search, resource) {
+      if (!(resource instanceof Array)) {
+        // Per default Better Autocomplete only handles arrays of data
+        return;
+      }
       search = search.toLowerCase();
       var results = [];
-      if (resource instanceof Array) {
-        $.each(resource, function(i, value) {
-          if (typeof value != 'string') {
-            return; // continue
-          }
-          // Match found
+      $.each(resource, function(i, value) {
+        switch (typeof value) {
+        case 'string': // Flat array of strings
           if (value.toLowerCase().indexOf(search) >= 0) {
+            // Match found
             results.push({ title: value });
           }
-        });
-      }
+          break;
+        case 'object': // Array of result objects
+          if (typeof value.title != 'undefined' && value.title.toLowerCase().indexOf(search) >= 0) {
+            // Match found in title field
+            results.push(value);
+          }
+          break;
+        }
+      });
       return results;
     },
 
