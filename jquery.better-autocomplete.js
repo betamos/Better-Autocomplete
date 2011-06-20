@@ -139,6 +139,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   }, options);
 
   /**
+   * These callbacks are supposed to be overridden by you when you need
+   * customization of the default behavior. When you are overriding a callback
+   * function, it is a good idea to copy the source code from the default
+   * callback function, as a skeleton.
+   *
    * @name callbacks
    * @namespace
    */
@@ -193,7 +198,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * <br /><br /><em>Default behavior: Automatically handles arrays, if the
      * data inside each element is either a plain string or a result object.
      * If it is a result object, it will match the query string against the
-     * title and description property.</em>
+     * title and description property. Search is not case sensitive.</em>
      *
      * @param {String} query
      *   The query string, unescaped. May contain any UTF-8 character.
@@ -277,9 +282,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * array, return it. Otherwise return an empty array.</em>
      *
      * @param {mixed} data
-     *   The raw data recieved from the server.
+     *   The raw data recieved from the server. Can be undefined.
      *
-     * @returns {Array}
+     * @returns {Array[Object]}
      *   A flat array containing result objects. Must return an array.
      */
     processRemoteData: function(data) {
@@ -621,11 +626,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Generate DOM result items from the current query using the results cache
    * 
    * @todo Grouping of items even if they are recieved in an arbitrary order?
-   *
-   * @todo Sanitization of title/description? Something that just filters XSS
-   * would be necessary, I think. Maybe a list of allowed HTML tags.
-   * Another option is to inform the developers that they should sanitize
-   * server-side.
    */
   var renderResults = function() {
 
