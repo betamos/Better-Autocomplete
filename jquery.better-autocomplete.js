@@ -666,10 +666,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       group = callbacks.getGroup(result);
       if (typeof group == 'string' && group !== lastGroup) {
         var $groupHeading = $('<li />').addClass('group')
-          .append('<h3>' + result.group + '</h3>')
+          .append('<h3>' + group + '</h3>')
           .appendTo($resultsList);
       }
-      lastGroup = result.group;
+      lastGroup = group;
 
       var output = callbacks.renderResult(result);
       if (output) {
