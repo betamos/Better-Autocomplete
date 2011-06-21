@@ -367,11 +367,12 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   var $wrapper = $('<div />')
     .addClass('better-autocomplete')
-    .css({
-      left: $input.offset().left,
-      top: $input.offset().top + $input.outerHeight()
-    })
     .prependTo($input.offsetParent());
+
+  $wrapper.css({
+    left: $wrapper.position().left + $input.offset().left,
+    top: $wrapper.position().top + $input.offset().top + $input.outerHeight()
+  });
 
   var $resultsList = $('<ul />')
     .addClass('results')
