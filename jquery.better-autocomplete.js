@@ -365,6 +365,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     inputEvents = {},
     isLocal = ($.type(resource) != 'string');
 
+  // TODO: Remove wrapper, it's not necessary
   var $wrapper = $('<div />')
     .addClass('better-autocomplete')
     .prependTo($input.offsetParent());
@@ -468,7 +469,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       if (disableMouseHighlight) {
         return;
       }
-      setHighlighted($(this).data('index'));
+      setHighlighted($('.result', $resultsList).index($(this)));
     },
     mousemove: function() {
       // Enable mouseover again.
@@ -644,8 +645,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   /**
    * Generate DOM result items from the current query using the results cache
-   * 
-   * @todo Grouping of items even if they are recieved in an arbitrary order?
    */
   var renderResults = function() {
 
@@ -658,31 +657,41 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     if (!$.isArray(results[query])) {
       return false;
     }
-    var group, lastGroup, output, count = 0;
+    var groups = {}, // Key is the group name, value is the heading element.
+      count = 0;
     $.each(results[query], function(index, result) {
       if ($.type(result) != 'object') {
         return; // Continue
       }
 
-      // Grouping
+      var output = callbacks.renderResult(result);
+      if ($.type(output) != 'string') {
+        return; // Continue
+      }
+      count++;
+
+      // Add the group if it doesn't exist
       group = callbacks.getGroup(result);
-      if ($.type(group) == 'string' && group !== lastGroup) {
+      if ($.type(group) == 'string' && !groups[group]) {
         var $groupHeading = $('<li />').addClass('group')
           .append('<h3>' + group + '</h3>')
           .appendTo($resultsList);
+        groups[group] = $groupHeading;
       }
-      lastGroup = group;
 
-      var output = callbacks.renderResult(result);
-      if (output) {
-        $('<li />').addClass('result')
-          .append(output)
-          .data('result', result) // Store the result object on this DOM element
-          .data('index', index) // For quick determination of index on events
-          .addClass(result.addClass)
-          .appendTo($resultsList);
+      var $result = $('<li />').addClass('result')
+        .append(output)
+        .data('result', result) // Store the result object on this DOM element
+        .addClass(result.addClass);
+
+      // First groupless item
+      if ($.type(group) != 'string' && !$resultsList.children().first().is('.result')) {
+        $resultsList.prepend($result);
+        return; // Continue
       }
-      count++;
+      var $traverseFrom = ($.type(group) == 'string') ? groups[group] : $resultsList.children().first();
+      var $target = $traverseFrom.nextUntil('.group').last();
+      $result.insertAfter($target.length ? $target : $traverseFrom);
     });
     return !!count; // Only true if there were elements
   };
