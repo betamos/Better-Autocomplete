@@ -2,14 +2,13 @@
 /* Stylesheet for Better Autocomplete jQuery plugin by Didrik Nordström */
 
 .better-autocomplete {
-  position: relative;
+  position: absolute;
   clear: both;
-  top: -2px;
-  left: 1px;
   width: 0;
   height: 0;
   text-align: left;
   font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
+  z-index: 10;
 }
 
 /* Reset styles for lists */
