@@ -297,6 +297,25 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     },
 
     /**
+     * From a given result object, return it's group name (if any). Used for
+     * grouping results together.
+     *
+     * <br /><br /><em>Default behavior: If the result has a "group" property
+     * defined, return it.</em>
+     *
+     * @param {Object} result
+     *   The result object.
+     *
+     * @returns {String}
+     *   The group name. If no group, don't return anything.
+     */
+    getGroup: function(result) {
+      if (typeof result.group == 'string') {
+        return result.group;
+      }
+    },
+
+    /**
      * Called when remote fetching begins.
      *
      * <br /><br /><em>Default behavior: Adds the CSS class "fetching" to the
@@ -637,14 +656,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     if (!(results[query] instanceof Array)) {
       return false;
     }
-    var lastGroup, output, count = 0;
+    var group, lastGroup, output, count = 0;
     $.each(results[query], function(index, result) {
       if (!(result instanceof Object)) {
         return;
       }
 
       // Grouping
-      if (typeof result.group != 'undefined' && result.group !== lastGroup) {
+      group = callbacks.getGroup(result);
+      if (typeof group == 'string' && group !== lastGroup) {
         var $groupHeading = $('<li />').addClass('group')
           .append('<h3>' + result.group + '</h3>')
           .appendTo($resultsList);
