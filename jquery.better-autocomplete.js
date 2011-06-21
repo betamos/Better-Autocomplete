@@ -182,10 +182,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      */
     renderResult: function(result) {
       var output = '';
-      if (typeof result.title != 'undefined') {
+      if ($.type(result.title) == 'string') {
         output += '<h4>' + result.title + '</h4>';
       }
-      if (typeof result.description != 'undefined') {
+      if ($.type(result.description) == 'string') {
         output += '<p>' + result.description + '</p>';
       }
       return output;
@@ -208,17 +208,17 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      *   constructor.
      *
      * @return {Array}
-     *   A flat array containing pure result objects.
+     *   A flat array containing pure result objects. Must return an array.
      */
     queryLocalResults: function(query, resource) {
-      if (!(resource instanceof Array)) {
+      if (!$.isArray(resource)) {
         // Per default Better Autocomplete only handles arrays of data
-        return;
+        return [];
       }
       query = query.toLowerCase();
       var results = [];
       $.each(resource, function(i, value) {
-        switch (typeof value) {
+        switch ($.type(value)) {
         case 'string': // Flat array of strings
           if (value.toLowerCase().indexOf(query) >= 0) {
             // Match found
@@ -226,11 +226,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
           }
           break;
         case 'object': // Array of result objects
-          if (typeof value.title != 'undefined' && value.title.toLowerCase().indexOf(query) >= 0) {
+          if ($.type(value.title) == 'string' && value.title.toLowerCase().indexOf(query) >= 0) {
             // Match found in title field
             results.push(value);
           }
-          else if (typeof value.description != 'undefined' && value.description.toLowerCase().indexOf(query) >= 0) {
+          else if ($.type(value.description) == 'string' && value.description.toLowerCase().indexOf(query) >= 0) {
             // Match found in description field
             results.push(value);
           }
@@ -288,7 +288,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      *   A flat array containing result objects. Must return an array.
      */
     processRemoteData: function(data) {
-      if (typeof data != 'undefined' && data instanceof Array) {
+      if ($.isArray(data)) {
         return data;
       }
       else {
@@ -310,7 +310,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      *   The group name. If no group, don't return anything.
      */
     getGroup: function(result) {
-      if (typeof result.group == 'string') {
+      if ($.type(result.group) == 'string') {
         return result.group;
       }
     },
@@ -363,7 +363,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     activeRemoteCalls = 0,
     disableMouseHighlight = false,
     inputEvents = {},
-    isLocal = (typeof resource != 'string');
+    isLocal = ($.type(resource) != 'string');
 
   var $wrapper = $('<div />')
     .addClass('better-autocomplete')
@@ -400,7 +400,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         break;
       }
       // Index have changed so update highlighted element, then cancel the event.
-      if (typeof newIndex == 'number') {
+      if ($.type(newIndex) == 'number') {
 
         // Disable the auto-triggered mouseover event
         disableMouseHighlight = true;
@@ -581,7 +581,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       callbacks.beginFetching();
       callbacks.fetchRemoteData(url, function(data) {
         var searchResults = callbacks.processRemoteData(data);
-        if (typeof searchResults == 'undefined' || !(searchResults instanceof Array)) {
+        if (!$.isArray(searchResults)) {
           searchResults = [];
         }
         results[query] = searchResults;
@@ -603,14 +603,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var needsFetching = function() {
     var query = $input.val();
 
-    if (query.length < options.charLimit) {
-      return false;
-    }
-    else if (typeof results[query] != 'undefined') {
-      return false;
+    if (query.length >= options.charLimit && !$.isArray(results[query])) {
+      return true;
     }
     else {
-      return true;
+      return false;
     }
   };
 
@@ -653,18 +650,18 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     $resultsList.empty();
 
     // The result is not in cache, so there is nothing to display right now
-    if (!(results[query] instanceof Array)) {
+    if (!$.isArray(results[query])) {
       return false;
     }
     var group, lastGroup, output, count = 0;
     $.each(results[query], function(index, result) {
-      if (!(result instanceof Object)) {
-        return;
+      if ($.type(result) != 'object') {
+        return; // Continue
       }
 
       // Grouping
       group = callbacks.getGroup(result);
-      if (typeof group == 'string' && group !== lastGroup) {
+      if ($.type(group) == 'string' && group !== lastGroup) {
         var $groupHeading = $('<li />').addClass('group')
           .append('<h3>' + group + '</h3>')
           .appendTo($resultsList);
