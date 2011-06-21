@@ -8,6 +8,10 @@
 
 <style>
 
+body {
+  font: 12px 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
+}
+
 input {
   width: 500px;
 }
@@ -38,30 +42,27 @@ var cities = [
 ];
 
 var colors = [
-	{
+  {
 	  title: 'Red',
-	  description: 'The color of the heart.'
+	  description: 'The color of the heart.',
+	  group: 'Ground colors' // Grouping is supported with both local and remote resources
 	},
   'Yellow', // You can even mix real result objects with plain strings
   {
     title: 'Green',
-    description: 'If you look at your plants, they will likely be green.'
-  },
-  {
+    description: 'If you look at your plants, they will likely be green.',
+    group: 'Ground colors'
+  }, {
     title: 'Pink',
     description: 'For ponies, it is a <em>very common</em> hair color.'
-  },
-  {
+  }, {
     title: 'Blue',
     description: 'Color of the sky and the ocean, what else can I say?',
-    group: 'Begins with a B' // Grouping is supported with both local and remote resources
-  },
-  {
+    group: 'Ground colors'
+  }, {
     title: 'Beer',
-    description: 'I know, I know, it may not be a color, but who cares? This is a demonstration and I wan\'t to have a long text that wraps.',
-    group: 'Begins with a B'
-  }
-];
+    description: 'I know, I know, it may not be a color, but who cares? This is a demonstration and I wan\'t to have a long text that wraps.'
+  }];
 
 $(document).ready(function() {
 
@@ -84,13 +85,10 @@ $(document).ready(function() {
   // A remote JSON resource
   $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', { maxHeight: 200 }, {
     processRemoteData: function(data) {
-      if (typeof data != 'undefined' && data instanceof Object &&
-          typeof data.geonames != 'undefined' && data.geonames instanceof Array) {
+      if ($.type(data) == 'object' && $.isArray(data.geonames))
         return data.geonames;
-      }
-      else {
+      else
         return [];
-      }
     },
     renderResult: function(result) {
       output = '<h4>' + result.name + '</h4>';
@@ -100,6 +98,10 @@ $(document).ready(function() {
     select: function(result) {
       $('#geonames').blur();
       alert('You selected ' + result.name);
+    },
+    getGroup: function(result) {
+      if ($.type(result.countryName) == 'string' && result.countryName.length)
+        return result.countryName;
     }
   });
 
@@ -108,7 +110,7 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-<h1>Better Autocomplete examples</h1>
+<h1>Better Autocomplete demonstration</h1>
 
 <h2>Local source, flat string array</h2>
 
@@ -124,11 +126,11 @@ $(document).ready(function() {
   <input type="text" id="color" name="color" />
 </form>
 
-<h2>Remote source</h2>
+<h2>Remote source, geonames.org JSON API</h2>
 
 <form>
-  <label for="geonames">Search geonames.org</label><br />
-  <input type="text" id="geonames" name="geonames" /><br />
+  <label for="geonames">Select a geographical location</label><br />
+  <input type="text" id="geonames" name="geonames" />
 </form>
 
 </body>
