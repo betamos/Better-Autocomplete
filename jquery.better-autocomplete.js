@@ -340,7 +340,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var self = this,
     lastRenderedQuery = '',
     results = {}, // Key-valued caching of search results
-    userString = $input.val(), // Current input string
     timer, // Used for options.delay
     activeRemoteCalls = 0,
     disableMouseHighlight = false,
@@ -583,12 +582,12 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * @returns {Boolean} true if fetching is required
    */
   var needsFetching = function() {
-    var userString = $input.val();
+    var query = $input.val();
 
-    if (userString.length < options.charLimit) {
+    if (query.length < options.charLimit) {
       return false;
     }
-    else if (typeof results[userString] != 'undefined') {
+    else if (typeof results[query] != 'undefined') {
       return false;
     }
     else {
@@ -630,16 +629,16 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var renderResults = function() {
 
     // Update user string
-    userString = $input.val();
+    var query = $input.val();
 
     $resultsList.empty();
 
     // The result is not in cache, so there is nothing to display right now
-    if (!(results[userString] instanceof Array)) {
+    if (!(results[query] instanceof Array)) {
       return false;
     }
     var lastGroup, output, count = 0;
-    $.each(results[userString], function(index, result) {
+    $.each(results[query], function(index, result) {
       if (!(result instanceof Object)) {
         return;
       }
