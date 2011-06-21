@@ -159,7 +159,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      *
      * <br /><br /><em>Default behavior: Simply blurs the input field.</em>
      *
-     * @param {Result} result
+     * @param {Object} result
      *   The result object that was selected.
      */
     select: function(result) {
@@ -339,8 +339,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   var self = this,
     lastRenderedQuery = '',
-    results = {}, // Caching dababase of search results.
-    userString = $input.val(), // Current input string,
+    results = {}, // Key-valued caching of search results
+    userString = $input.val(), // Current input string
     timer, // Used for options.delay
     activeRemoteCalls = 0,
     disableMouseHighlight = false,
@@ -365,7 +365,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   inputEvents.blur = function() {
     $wrapper.hide();
-  },
+  };
 
   inputEvents.keydown = function(event) {
     var index;
@@ -652,7 +652,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       }
       lastGroup = result.group;
 
-      if (output = callbacks.renderResult(result)) {
+      var output = callbacks.renderResult(result);
+      if (output) {
         $('<li />').addClass('result')
           .append(output)
           .data('result', result) // Store the result object on this DOM element
