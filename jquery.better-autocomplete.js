@@ -492,7 +492,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Turn off the browser's autocompletion
     $input
       .attr('autocomplete', 'OFF')
-      .attr('aria-autocomplete', 'none');
+      .attr('aria-autocomplete', 'list');
     $input.bind(inputEvents);
   };
 
