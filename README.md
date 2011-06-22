@@ -17,12 +17,12 @@ The state of this plugin
 ------------------------
 
 This plugin is as good as ready in many ways and is developed over a couple of
-months, so the codebase is tested and refactored in many ways, *but* the
-documentation is not up to date and there some non-critical featured yet to be
-implemented.
+months, so the codebase is solid and tested in multiple environments. Some none
+critical features and API-changes may occur before an initial release which
+hopefully will occur within a week from now (2011-06-22).
 
 Also in the case of Internet Explorer I can tell that it has *not* been tested
-at all in IE. It may just work perfectly fine (for IE7+) or
+at all in IE yet. It may just work perfectly fine (for IE7+) or
 there may be small bugs or even critical bugs. Please feel free to fork and fix
 these potential "bugs" but I want to keep the code clean, and I'm not willing
 to do a lot of ugly hacks just for IE.
