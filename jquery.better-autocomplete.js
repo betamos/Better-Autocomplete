@@ -368,7 +368,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   // TODO: Remove wrapper, it's not necessary
   var $wrapper = $('<div />')
     .addClass('better-autocomplete')
-    .prependTo($input.offsetParent());
+    .insertAfter($input);
 
   $wrapper.css({
     left: $wrapper.position().left + $input.offset().left,
