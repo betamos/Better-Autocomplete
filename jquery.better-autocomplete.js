@@ -44,14 +44,14 @@
  *     charLimit: (default=3) The minimum number of chars to do an AJAX call.
  *     A typical use case for this limit is to reduce server load.
  *   </li><li>
- *     delay: (default=250) The time in ms between last keypress and AJAX call.
+ *     delay: (default=350) The time in ms between last keypress and AJAX call.
  *     Typically used to prevent looking up irrelevant strings while the user
  *     is still typing.
  *   </li><li>
  *     maxHeight: (default=330) The maximum height in pixels for the
  *     autocomplete list.
  *   </li><li>
- *     remoteTimeout: (default=5000) The timeout for remote (AJAX) calls.
+ *     remoteTimeout: (default=10000) The timeout for remote (AJAX) calls.
  *   </li><li>
  *     selectKeys: (default=[9, 13]) The key codes for keys which will select
  *     the current highlighted element. The defaults are tab, enter.
@@ -132,9 +132,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   options = $.extend({
     charLimit: 3,
-    delay: 250, // milliseconds
+    delay: 350, // milliseconds
     maxHeight: 330, // px
-    remoteTimeout: 5000, // milliseconds
+    remoteTimeout: 10000, // milliseconds
     selectKeys: [9, 13] // [tab, enter]
   }, options);
 
