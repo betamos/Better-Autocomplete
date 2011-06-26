@@ -208,7 +208,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   inputEvents.keyup = function() {
-    var query = $input.val();
+    var query = callbacks.canonicalQuery($input.val());
     clearTimeout(timer);
     // Indicate that timer is inactive
     timer = null;
@@ -418,7 +418,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   Force to treat the input element like it's focused. (default=false)
    */
   var redraw = function(focus) {
-    var query = $input.val();
+    var query = callbacks.canonicalQuery($input.val());
 
     // The query does not exist in db
     if (!$.isArray(cache[query])) {
@@ -569,7 +569,7 @@ var defaultCallbacks = {
    */
   queryLocalResults: function(query, resource) {
     if (!$.isArray(resource)) {
-      // Per default Better Autocomplete only handles arrays of data
+      // Per default Better Autocomplete only handles arrays
       return [];
     }
     query = query.toLowerCase();
@@ -716,6 +716,22 @@ var defaultCallbacks = {
    */
   constructURL: function(path, query) {
     return path + '?q=' + encodeURIComponent(query);
+  },
+
+  /**
+   * To ease up on server load, treat similar strings the same.
+   *
+   * <br /><br /><em>Default behavior: Trims the query from leading and
+   * trailing whitespace.</em>
+   *
+   * @param {String} rawQuery
+   *   The user's raw input.
+   *
+   * @returns {String}
+   *   The canonical query associated with this string.
+   */
+  canonicalQuery: function(rawQuery) {
+    return $.trim(rawQuery);
   }
 };
 
