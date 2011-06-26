@@ -378,7 +378,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   inputEvents.focus = function() {
     // Parse results to be sure, the input value may have changed
-    parseResults();
+    redraw();
     $results.show();
   };
 
@@ -406,6 +406,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         // Disable the auto-triggered mouseover event
         disableMouseHighlight = true;
 
+        // TODO: Lots of evil code here, could be a flag on setHighlighted "autoscroll"?
         setHighlighted(newIndex);
 
         // Automatic scrolling to the highlighted result
@@ -438,13 +439,13 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   inputEvents.keyup = function() {
+    var query = $input.val();
     clearTimeout(timer);
     // Indicate that timer is inactive
     timer = null;
-    // Parse always!
-    parseResults();
-    // If the results can't be displayed we must fetch them, then display
-    if (needsFetching()) {
+    redraw();
+    if (query.length >= options.charLimit && !$.isArray(results[query])) {
+      // Fetching is required
       $results.empty();
       if (isLocal) {
         fetchResults($input.val());
@@ -551,15 +552,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    */
   var select = function() {
     var $result = $('.result', $results).eq(getHighlighted());
-    if ($result.length == 0) {
+    if (!$result.length) {
       return false;
     }
     var result = $result.data('result');
 
     callbacks.select(result);
 
-    // Parse once more, if the callback changed focus or content
-    parseResults();
+    // Redraw again, if the callback changed focus or content
+    redraw();
     return true;
   };
 
@@ -574,8 +575,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Synchronously fetch local data
     if (isLocal) {
       results[query] = callbacks.queryLocalResults(query, resource);
-      parseResults();
+      redraw();
     }
+    // Asynchronously fetch remote data
     else {
       activeRemoteCalls++;
       var url = callbacks.constructURL(resource, query);
@@ -590,71 +592,50 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         if (activeRemoteCalls == 0) {
           callbacks.finishFetching();
         }
-        parseResults();
+        redraw();
       }, options.remoteTimeout);
     }
   };
 
   /**
-   * Does the current user string need fetching?
-   * Checks character limit and cache.
-   *
-   * @returns {Boolean} true if fetching is required
+   * Redraws the autocomplete list based on current query and focus.
    */
-  var needsFetching = function() {
+  var redraw = function() {
     var query = $input.val();
 
-    if (query.length >= options.charLimit && !$.isArray(results[query])) {
-      return true;
+    // The query does not exist in db
+    if (!$.isArray(results[query])) {
+      lastRenderedQuery = null;
+      $results.empty();
+    }
+    // The query exists and is not already drawn
+    else if (lastRenderedQuery !== query) {
+      lastRenderedQuery = query;
+      renderResults(results[query]);
+      setHighlighted(0);
+    }
+
+    // Finally show/hide based on focus and emptiness
+    if ($input.is(':focus') && !$results.is(':empty')) {
+      $results.show();
     }
     else {
-      return false;
-    }
-  };
-
-  /**
-   * Checks if needed to re-render etc
-   */
-  var parseResults = function() {
-    // TODO: Logical statements here, cleanup?
-    if (!$input.is(':focus')) {
       $results.hide();
-      return;
-    }
-    // Check if already rendered
-    if (lastRenderedQuery == $input.val()) {
-      $results.show();
-      return;
-    }
-    $results.hide();
-    if (needsFetching()) {
-      return;
-    }
-    lastRenderedQuery = $input.val();
-
-    if (renderResults()) {
-      setHighlighted(0);
-      $results.show();
     }
   };
 
   /**
-   * Generate DOM result items from the current query using the results cache
+   * Regenerate the DOM content within the results list for a given set of
+   * results. Heavy method, use only when necessary.
+   *
+   * @param {Array} results
+   *   An array of result objects to render.
    */
-  var renderResults = function() {
-
-    // Update user string
-    var query = $input.val();
-
+  var renderResults = function(results) {
     $results.empty();
+    var groups = {}; // Key is the group name, value is the heading element.
 
-    // The result is not in cache, so there is nothing to display right now
-    if (!$.isArray(results[query])) {
-      return false;
-    }
-    var groups = {}, // Key is the group name, value is the heading element.
-      count = 0;
-    $.each(results[query], function(index, result) {
+    $.each(results, function(index, result) {
       if ($.type(result) != 'object') {
         return; // Continue
       }
@@ -663,7 +644,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       if ($.type(output) != 'string') {
         return; // Continue
       }
-      count++;
 
       // Add the group if it doesn't exist
       group = callbacks.getGroup(result);
@@ -688,7 +668,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       var $target = $traverseFrom.nextUntil('.group').last();
       $result.insertAfter($target.length ? $target : $traverseFrom);
     });
-    return !!count; // Only true if there were elements
   };
 };
 
