@@ -140,8 +140,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   callbacks = $.extend({}, defaultCallbacks, callbacks);
 
-  var self = this,
-    lastRenderedQuery = '',
+  var lastRenderedQuery = '',
     results = {}, // Key-valued caching of search results
     timer, // Used for options.delay
     activeRemoteCalls = 0,
