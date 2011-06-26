@@ -7,39 +7,34 @@
  * in your CSS file. And remember to include that file AFTER this file.
  */
 
-.better-autocomplete {
-  position: absolute;
-  /* To alter the position of the results, override the left and top values. */
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  text-align: left;
-  font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
-  /* 10, of course, is an arbitrary number. Override if necessary. */
-  z-index: 10;
-}
-
 /* Reset styles for lists */
 
-.better-autocomplete ul,
-.better-autocomplete li {
+.better-autocomplete,
+.better-autocomplete > .result {
   list-style: none;
   padding: 0;
   margin: 0;
   background: none;
 }
 
-.better-autocomplete > .results {
-  position: relative;
+.better-autocomplete {
+  position: absolute;
+  /* To alter the position of the results, override the left and top values. */
+  left: 0;
+  top: 0;
+  text-align: left;
+  font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
+  /* 10, of course, is an arbitrary number. Override if necessary. */
+  z-index: 10;
   overflow: auto;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   cursor: default;
+  background: white;
 }
 
 /* Groups */
 
-.better-autocomplete > .results > .group {
+.better-autocomplete > .group {
   position: relative;
   padding: 3px;
   text-align: center;
@@ -49,7 +44,7 @@
   border-style: solid;
 }
 
-.better-autocomplete > .results > .group > h3 {
+.better-autocomplete > .group > h3 {
   font-size: 11px;
   color: #555;
   padding: 0;
@@ -58,7 +53,7 @@
 
 /* Results */
 
-.better-autocomplete > .results > .result {
+.better-autocomplete > .result {
   position: relative;
   padding: 5px 7px;
   background: white;
@@ -67,14 +62,14 @@
   border-style: solid;
 }
 
-.better-autocomplete > .results > .result > h4 {
+.better-autocomplete > .result > h4 {
   font-size: 12px;
   color: #3c3c3c;
   padding: 0;
   margin: 0 0 2px 0;
 }
 
-.better-autocomplete > .results > .result > p {
+.better-autocomplete > .result > p {
   font-size: 11px;
   line-height: 1.3;
   color: #6f6f6f;
@@ -82,18 +77,18 @@
   margin: 0;
 }
 
-.better-autocomplete > .results > .result:last-child {
+.better-autocomplete > .result:last-child {
   border-bottom: 1px solid #bfbfbf;
 }
 
 /* Highlighting */
 
-.better-autocomplete > .results > .result.highlight {
+.better-autocomplete > .result.highlight {
   background: #0075ba;
   border-top-color: #1f4a64;
 }
 
-.better-autocomplete > .results > .result.highlight > h4,
-.better-autocomplete > .results > .result.highlight > p {
+.better-autocomplete > .result.highlight > h4,
+.better-autocomplete > .result.highlight > p {
   color: white;
 }

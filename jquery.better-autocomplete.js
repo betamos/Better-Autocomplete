@@ -365,30 +365,25 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     inputEvents = {},
     isLocal = ($.type(resource) != 'string');
 
-  // TODO: Remove wrapper, it's not necessary
-  var $wrapper = $('<div />')
+  var $results = $('<ul />')
     .addClass('better-autocomplete')
     .insertAfter($input);
 
-  $wrapper.css({
-    left: $wrapper.position().left + $input.offset().left,
-    top: $wrapper.position().top + $input.offset().top + $input.outerHeight()
-  });
-
-  var $resultsList = $('<ul />')
-    .addClass('results')
-    .width($input.outerWidth() - 2) // Subtract border width.
-    .css('max-height', options.maxHeight + 'px')
-    .appendTo($wrapper);
+  $results.width($input.outerWidth() - 2) // Subtract border width.
+    .css({
+      maxHeight: options.maxHeight + 'px',
+      left: $results.position().left + $input.offset().left,
+      top: $results.position().top + $input.offset().top + $input.outerHeight()
+    });
 
   inputEvents.focus = function() {
     // Parse results to be sure, the input value may have changed
     parseResults();
-    $wrapper.show();
+    $results.show();
   };
 
   inputEvents.blur = function() {
-    $wrapper.hide();
+    $results.hide();
   };
 
   inputEvents.keydown = function(event) {
@@ -396,7 +391,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // If an arrow key is pressed and a result is highlighted
     if ([38, 40].indexOf(event.keyCode) >= 0 && (index = getHighlighted()) >= 0) {
       var newIndex,
-        size = $('.result', $resultsList).length;
+        size = $('.result', $results).length;
       switch (event.keyCode) {
       case 38: // Up arrow
         newIndex = Math.max(0, index-1);
@@ -414,7 +409,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         setHighlighted(newIndex);
 
         // Automatic scrolling to the highlighted result
-        var $scrollTo = $('.result', $resultsList).eq(getHighlighted());
+        var $scrollTo = $('.result', $results).eq(getHighlighted());
 
         // Scrolling up, then show the group title
         if ($scrollTo.prev().is('.group') && event.keyCode == 38) {
@@ -422,11 +417,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         }
         // Is the result above the visible region?
         if ($scrollTo.position().top < 0) {
-          $resultsList.scrollTop($scrollTo.position().top + $resultsList.scrollTop());
+          $results.scrollTop($scrollTo.position().top + $results.scrollTop());
         }
         // Or is it below the visible region?
-        else if (($scrollTo.position().top + $scrollTo.outerHeight()) > $resultsList.height()) {
-          $resultsList.scrollTop($scrollTo.position().top + $resultsList.scrollTop() + $scrollTo.outerHeight() - $resultsList.height());
+        else if (($scrollTo.position().top + $scrollTo.outerHeight()) > $results.height()) {
+          $results.scrollTop($scrollTo.position().top + $results.scrollTop() + $scrollTo.outerHeight() - $results.height());
         }
         return false;
       }
@@ -450,7 +445,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     parseResults();
     // If the results can't be displayed we must fetch them, then display
     if (needsFetching()) {
-      $resultsList.empty();
+      $results.empty();
       if (isLocal) {
         fetchResults($input.val());
       }
@@ -463,13 +458,13 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     }
   };
 
-  $('.result', $resultsList[0]).live({
+  $('.result', $results[0]).live({
     // When the user hovers a result with the mouse, highlight it.
     mouseover: function() {
       if (disableMouseHighlight) {
         return;
       }
-      setHighlighted($('.result', $resultsList).index($(this)));
+      setHighlighted($('.result', $results).index($(this)));
     },
     mousemove: function() {
       // Enable mouseover again.
@@ -483,7 +478,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   // Prevent blur when clicking on group titles, scrollbars etc.,
   // This event is triggered after the others' because of bubbling order.
-  $resultsList.mousedown(function() {
+  $results.mousedown(function() {
     return false;
   });
 
@@ -509,7 +504,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     $input
       .removeAttr('autocomplete')
       .removeAttr('aria-autocomplete');
-    $wrapper.hide();
+    $results.hide();
     $input.unbind(inputEvents);
   };
 
@@ -517,7 +512,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Disable and remove this instance. This instance should not be reused.
    */
   this.destroy = function() {
-    $wrapper.remove();
+    $results.remove();
     $input.unbind(inputEvents);
     $input.removeData('better-autocomplete');
   };
@@ -533,7 +528,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   The result's index, starting on 0
    */
   var setHighlighted = function(index) {
-    $('.result', $resultsList)
+    $('.result', $results)
       .removeClass('highlight')
       .eq(index).addClass('highlight');
   };
@@ -545,7 +540,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   The result's index or -1 if no result is highlighted
    */
   var getHighlighted = function() {
-    return $('.result', $resultsList).index($('.result.highlight', $resultsList));
+    return $('.result', $results).index($('.result.highlight', $results));
   };
 
   /**
@@ -555,7 +550,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   True if a selection was possible
    */
   var select = function() {
-    var $result = $('.result', $resultsList).eq(getHighlighted());
+    var $result = $('.result', $results).eq(getHighlighted());
     if ($result.length == 0) {
       return false;
     }
@@ -623,15 +618,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var parseResults = function() {
     // TODO: Logical statements here, cleanup?
     if (!$input.is(':focus')) {
-      $wrapper.hide();
+      $results.hide();
       return;
     }
     // Check if already rendered
     if (lastRenderedQuery == $input.val()) {
-      $wrapper.show();
+      $results.show();
       return;
     }
-    $wrapper.hide();
+    $results.hide();
     if (needsFetching()) {
       return;
     }
@@ -639,7 +634,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
     if (renderResults()) {
       setHighlighted(0);
-      $wrapper.show();
+      $results.show();
     }
   };
 
@@ -651,7 +646,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Update user string
     var query = $input.val();
 
-    $resultsList.empty();
+    $results.empty();
 
     // The result is not in cache, so there is nothing to display right now
     if (!$.isArray(results[query])) {
@@ -675,7 +670,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       if ($.type(group) == 'string' && !groups[group]) {
         var $groupHeading = $('<li />').addClass('group')
           .append('<h3>' + group + '</h3>')
-          .appendTo($resultsList);
+          .appendTo($results);
         groups[group] = $groupHeading;
       }
 
@@ -685,11 +680,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .addClass(result.addClass);
 
       // First groupless item
-      if ($.type(group) != 'string' && !$resultsList.children().first().is('.result')) {
-        $resultsList.prepend($result);
+      if ($.type(group) != 'string' && !$results.children().first().is('.result')) {
+        $results.prepend($result);
         return; // Continue
       }
-      var $traverseFrom = ($.type(group) == 'string') ? groups[group] : $resultsList.children().first();
+      var $traverseFrom = ($.type(group) == 'string') ? groups[group] : $results.children().first();
       var $target = $traverseFrom.nextUntil('.group').last();
       $result.insertAfter($target.length ? $target : $traverseFrom);
     });
