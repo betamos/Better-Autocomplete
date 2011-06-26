@@ -138,223 +138,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     selectKeys: [9, 13] // [tab, enter]
   }, options);
 
-  /**
-   * These callbacks are supposed to be overridden by you when you need
-   * customization of the default behavior. When you are overriding a callback
-   * function, it is a good idea to copy the source code from the default
-   * callback function, as a skeleton.
-   *
-   * @name callbacks
-   * @namespace
-   */
-  callbacks = $.extend(
-  /**
-   * @lends callbacks.prototype
-   */
-  {
-
-    /**
-     * Gets fired when the user selects a result by clicking or using the
-     * keyboard to select an element.
-     *
-     * <br /><br /><em>Default behavior: Simply blurs the input field.</em>
-     *
-     * @param {Object} result
-     *   The result object that was selected.
-     */
-    select: function(result) {
-      $input.blur();
-    },
-
-    /**
-     * Given a result object, theme it to HTML.
-     *
-     * <br /><br /><em>Default behavior: Wraps result.title in an h4 tag, and
-     * result.description in a p tag. Note that no sanitization of malicious
-     * scripts is done here. Whatever is within the title/description is just
-     * printed out. May contain HTML.</em>
-     *
-     * @param {Object} result
-     *   The result object that should be rendered.
-     *
-     * @returns {String}
-     *   HTML output, will be wrapped in a list element.
-     */
-    themeResult: function(result) {
-      var output = '';
-      if ($.type(result.title) == 'string') {
-        output += '<h4>' + result.title + '</h4>';
-      }
-      if ($.type(result.description) == 'string') {
-        output += '<p>' + result.description + '</p>';
-      }
-      return output;
-    },
-
-    /**
-     * Retrieve local results from the local resource by providing a query
-     * string.
-     *
-     * <br /><br /><em>Default behavior: Automatically handles arrays, if the
-     * data inside each element is either a plain string or a result object.
-     * If it is a result object, it will match the query string against the
-     * title and description property. Search is not case sensitive.</em>
-     *
-     * @param {String} query
-     *   The query string, unescaped. May contain any UTF-8 character.
-     *
-     * @param {Object} resource
-     *   The resource provided in the {@link jQuery.betterAutocomplete} init
-     *   constructor.
-     *
-     * @return {Array[Object]}
-     *   A flat array containing pure result objects. Must return an array.
-     */
-    queryLocalResults: function(query, resource) {
-      if (!$.isArray(resource)) {
-        // Per default Better Autocomplete only handles arrays of data
-        return [];
-      }
-      query = query.toLowerCase();
-      var results = [];
-      $.each(resource, function(i, value) {
-        switch ($.type(value)) {
-        case 'string': // Flat array of strings
-          if (value.toLowerCase().indexOf(query) >= 0) {
-            // Match found
-            results.push({ title: value });
-          }
-          break;
-        case 'object': // Array of result objects
-          if ($.type(value.title) == 'string' && value.title.toLowerCase().indexOf(query) >= 0) {
-            // Match found in title field
-            results.push(value);
-          }
-          else if ($.type(value.description) == 'string' && value.description.toLowerCase().indexOf(query) >= 0) {
-            // Match found in description field
-            results.push(value);
-          }
-          break;
-        }
-      });
-      return results;
-    },
-
-    /**
-     * Fetch remote result data and return it using completeCallback when
-     * fetching is finished. Must be asynchronous in order to not freeze the
-     * Better Autocomplete instance.
-     *
-     * <br /><br /><em>Default behavior: Fetches JSON data from the url, using
-     * the jQuery.ajax() method. Errors are ignored.</em>
-     *
-     * @param {String} url
-     *   The URL to fetch data from.
-     *
-     * @param {Function} completeCallback
-     *   This function must be called, even if an error occurs. It takes zero
-     *   or one parameter: the data that was fetched.
-     *
-     * @param {Number} timeout
-     *   The preferred timeout for the request. This callback should respect
-     *   the timeout.
-     */
-    fetchRemoteData: function(url, completeCallback, timeout) {
-      $.ajax({
-        url: url,
-        dataType: 'json',
-        timeout: timeout,
-        success: function(data, textStatus) {
-          completeCallback(data);
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          completeCallback();
-        }
-      });
-    },
-
-    /**
-     * Process remote fetched data by extracting an array of result objects
-     * from it. This callback is useful if the fetched data is not the plain
-     * results array, but a more complicated object which does contain results.
-     *
-     * <br /><br /><em>Default behavior: If the data is defined and is an
-     * array, return it. Otherwise return an empty array.</em>
-     *
-     * @param {mixed} data
-     *   The raw data recieved from the server. Can be undefined.
-     *
-     * @returns {Array[Object]}
-     *   A flat array containing result objects. Must return an array.
-     */
-    processRemoteData: function(data) {
-      if ($.isArray(data)) {
-        return data;
-      }
-      else {
-        return [];
-      }
-    },
-
-    /**
-     * From a given result object, return it's group name (if any). Used for
-     * grouping results together.
-     *
-     * <br /><br /><em>Default behavior: If the result has a "group" property
-     * defined, return it.</em>
-     *
-     * @param {Object} result
-     *   The result object.
-     *
-     * @returns {String}
-     *   The group name. If no group, don't return anything.
-     */
-    getGroup: function(result) {
-      if ($.type(result.group) == 'string') {
-        return result.group;
-      }
-    },
-
-    /**
-     * Called when remote fetching begins.
-     *
-     * <br /><br /><em>Default behavior: Adds the CSS class "fetching" to the
-     * input field, for styling purposes.</em>
-     */
-    beginFetching: function() {
-      $input.addClass('fetching');
-    },
-
-    /**
-     * Called when fetching is finished. All active requests must finish before
-     * this function is called.
-     *
-     * <br /><br /><em>Default behavior: Removes the "fetching" class.</em>
-     */
-    finishFetching: function() {
-      $input.removeClass('fetching');
-    },
-
-    /**
-     * Construct the remote fetching URL.
-     *
-     * <br /><br /><em>Default behavior: Adds "?q=query" to the path. The query
-     * string is URL encoded.</em>
-     *
-     * @param {String} path
-     *   The path given in the {@link jQuery.betterAutocomplete} constructor.
-     *
-     * @param {String} query
-     *   The raw query string. Remember to URL encode this to prevent illegal
-     *   character errors.
-     *
-     * @returns {String}
-     *   The URL, ready for fetching.
-     */
-    constructURL: function(path, query) {
-      return path + '?q=' + encodeURIComponent(query);
-    }
-  }, callbacks);
+  callbacks = $.extend({}, defaultCallbacks, callbacks);
 
   var self = this,
     lastRenderedQuery = '',
@@ -584,7 +368,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else {
       activeRemoteCalls++;
       var url = callbacks.constructURL(resource, query);
-      callbacks.beginFetching();
+      callbacks.beginFetching($input);
       callbacks.fetchRemoteData(url, function(data) {
         var searchResults = callbacks.processRemoteData(data);
         if (!$.isArray(searchResults)) {
@@ -593,7 +377,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         results[query] = searchResults;
         activeRemoteCalls--;
         if (activeRemoteCalls == 0) {
-          callbacks.finishFetching();
+          callbacks.finishFetching($input);
         }
         redraw();
       }, options.remoteTimeout);
@@ -675,6 +459,236 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       $result.insertAfter($target.length ? $target : $traverseFrom);
     });
   };
+};
+
+/*
+ * CALLBACK METHODS
+ */
+
+/**
+ * These callbacks are supposed to be overridden by you when you need
+ * customization of the default behavior. When you are overriding a callback
+ * function, it is a good idea to copy the source code from the default
+ * callback function, as a skeleton.
+ *
+ * @name callbacks
+ * @namespace
+ */
+var defaultCallbacks = {
+  /**
+   * @lends callbacks.prototype
+   */
+
+  /**
+   * Gets fired when the user selects a result by clicking or using the
+   * keyboard to select an element.
+   *
+   * <br /><br /><em>Default behavior: Simply blurs the input field.</em>
+   *
+   * @param {Object} result
+   *   The result object that was selected.
+   *
+   * @param {Object} $input
+   *   The input DOM element, wrapped in jQuery.
+   */
+  select: function(result, $input) {
+    $input.blur();
+  },
+
+  /**
+   * Given a result object, theme it to HTML.
+   *
+   * <br /><br /><em>Default behavior: Wraps result.title in an h4 tag, and
+   * result.description in a p tag. Note that no sanitization of malicious
+   * scripts is done here. Whatever is within the title/description is just
+   * printed out. May contain HTML.</em>
+   *
+   * @param {Object} result
+   *   The result object that should be rendered.
+   *
+   * @returns {String}
+   *   HTML output, will be wrapped in a list element.
+   */
+  themeResult: function(result) {
+    var output = '';
+    if ($.type(result.title) == 'string') {
+      output += '<h4>' + result.title + '</h4>';
+    }
+    if ($.type(result.description) == 'string') {
+      output += '<p>' + result.description + '</p>';
+    }
+    return output;
+  },
+
+  /**
+   * Retrieve local results from the local resource by providing a query
+   * string.
+   *
+   * <br /><br /><em>Default behavior: Automatically handles arrays, if the
+   * data inside each element is either a plain string or a result object.
+   * If it is a result object, it will match the query string against the
+   * title and description property. Search is not case sensitive.</em>
+   *
+   * @param {String} query
+   *   The query string, unescaped. May contain any UTF-8 character.
+   *
+   * @param {Object} resource
+   *   The resource provided in the {@link jQuery.betterAutocomplete} init
+   *   constructor.
+   *
+   * @return {Array[Object]}
+   *   A flat array containing pure result objects. Must return an array.
+   */
+  queryLocalResults: function(query, resource) {
+    if (!$.isArray(resource)) {
+      // Per default Better Autocomplete only handles arrays of data
+      return [];
+    }
+    query = query.toLowerCase();
+    var results = [];
+    $.each(resource, function(i, value) {
+      switch ($.type(value)) {
+      case 'string': // Flat array of strings
+        if (value.toLowerCase().indexOf(query) >= 0) {
+          // Match found
+          results.push({ title: value });
+        }
+        break;
+      case 'object': // Array of result objects
+        if ($.type(value.title) == 'string' && value.title.toLowerCase().indexOf(query) >= 0) {
+          // Match found in title field
+          results.push(value);
+        }
+        else if ($.type(value.description) == 'string' && value.description.toLowerCase().indexOf(query) >= 0) {
+          // Match found in description field
+          results.push(value);
+        }
+        break;
+      }
+    });
+    return results;
+  },
+
+  /**
+   * Fetch remote result data and return it using completeCallback when
+   * fetching is finished. Must be asynchronous in order to not freeze the
+   * Better Autocomplete instance.
+   *
+   * <br /><br /><em>Default behavior: Fetches JSON data from the url, using
+   * the jQuery.ajax() method. Errors are ignored.</em>
+   *
+   * @param {String} url
+   *   The URL to fetch data from.
+   *
+   * @param {Function} completeCallback
+   *   This function must be called, even if an error occurs. It takes zero
+   *   or one parameter: the data that was fetched.
+   *
+   * @param {Number} timeout
+   *   The preferred timeout for the request. This callback should respect
+   *   the timeout.
+   */
+  fetchRemoteData: function(url, completeCallback, timeout) {
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      timeout: timeout,
+      success: function(data, textStatus) {
+        completeCallback(data);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        completeCallback();
+      }
+    });
+  },
+
+  /**
+   * Process remote fetched data by extracting an array of result objects
+   * from it. This callback is useful if the fetched data is not the plain
+   * results array, but a more complicated object which does contain results.
+   *
+   * <br /><br /><em>Default behavior: If the data is defined and is an
+   * array, return it. Otherwise return an empty array.</em>
+   *
+   * @param {mixed} data
+   *   The raw data recieved from the server. Can be undefined.
+   *
+   * @returns {Array[Object]}
+   *   A flat array containing result objects. Must return an array.
+   */
+  processRemoteData: function(data) {
+    if ($.isArray(data)) {
+      return data;
+    }
+    else {
+      return [];
+    }
+  },
+
+  /**
+   * From a given result object, return it's group name (if any). Used for
+   * grouping results together.
+   *
+   * <br /><br /><em>Default behavior: If the result has a "group" property
+   * defined, return it.</em>
+   *
+   * @param {Object} result
+   *   The result object.
+   *
+   * @returns {String}
+   *   The group name. If no group, don't return anything.
+   */
+  getGroup: function(result) {
+    if ($.type(result.group) == 'string') {
+      return result.group;
+    }
+  },
+
+  /**
+   * Called when remote fetching begins.
+   *
+   * <br /><br /><em>Default behavior: Adds the CSS class "fetching" to the
+   * input field, for styling purposes.</em>
+   *
+   * @param {Object} $input
+   *   The input DOM element, wrapped in jQuery.
+   */
+  beginFetching: function($input) {
+    $input.addClass('fetching');
+  },
+
+  /**
+   * Called when fetching is finished. All active requests must finish before
+   * this function is called.
+   *
+   * <br /><br /><em>Default behavior: Removes the "fetching" class.</em>
+   *
+   * @param {Object} $input
+   *   The input DOM element, wrapped in jQuery.
+   */
+  finishFetching: function($input) {
+    $input.removeClass('fetching');
+  },
+
+  /**
+   * Construct the remote fetching URL.
+   *
+   * <br /><br /><em>Default behavior: Adds "?q=query" to the path. The query
+   * string is URL encoded.</em>
+   *
+   * @param {String} path
+   *   The path given in the {@link jQuery.betterAutocomplete} constructor.
+   *
+   * @param {String} query
+   *   The raw query string. Remember to URL encode this to prevent illegal
+   *   character errors.
+   *
+   * @returns {String}
+   *   The URL, ready for fetching.
+   */
+  constructURL: function(path, query) {
+    return path + '?q=' + encodeURIComponent(query);
+  }
 };
 
 /*
