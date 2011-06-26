@@ -398,15 +398,16 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
       renderResults(results[query]);
-      setHighlighted(0, true);
+      setHighlighted(0);
     }
     // Finally show/hide based on focus and emptiness
-    // TODO: ScrollTop is reset to 0 when it's hidden. Maybe wrapper is needed anyway?
     if (($input.is(':focus') || focus) && !$results.is(':empty')) {
-      $results.show();
+      $results.filter(':hidden').show() // Show if hidden
+        .scrollTop($results.data('scroll-top')); // Reset the scrolling that was lost when hidden
     }
-    else {
-      $results.hide();
+    else if ($results.is(':visible')) {
+      $results.data('scroll-top', $results.scrollTop()) // Store the scrolling position for later
+        .hide(); // Hiding it resets it's scrollTop
     }
   };
 
