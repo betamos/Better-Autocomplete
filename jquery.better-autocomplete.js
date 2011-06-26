@@ -167,8 +167,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     },
 
     /**
-     * Given a result object, render it to HTML. This callback can be viewed as
-     * a theming function.
+     * Given a result object, theme it to HTML.
      *
      * <br /><br /><em>Default behavior: Wraps result.title in an h4 tag, and
      * result.description in a p tag. Note that no sanitization of malicious
@@ -178,9 +177,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      * @param {Object} result
      *   The result object that should be rendered.
      *
-     * @returns {String} HTML output, will be wrapped in a list element.
+     * @returns {String}
+     *   HTML output, will be wrapped in a list element.
      */
-    renderResult: function(result) {
+    themeResult: function(result) {
       var output = '';
       if ($.type(result.title) == 'string') {
         output += '<h4>' + result.title + '</h4>';
@@ -659,7 +659,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         return; // Continue
       }
 
-      var output = callbacks.renderResult(result);
+      var output = callbacks.themeResult(result);
       if ($.type(output) != 'string') {
         return; // Continue
       }
