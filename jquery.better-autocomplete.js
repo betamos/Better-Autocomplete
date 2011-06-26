@@ -125,7 +125,7 @@ $.fn.betterAutocomplete = function(method) {
  * @private @constructor
  * @name BetterAutocomplete
  *
- * @param $input
+ * @param {Object} $input
  *   A single input element wrapped in jQuery
  */
 var BetterAutocomplete = function($input, resource, options, callbacks) {
@@ -290,7 +290,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * @param {Number} index
    *   The result's index, starting on 0
    *
-   * @param {Boolean} autoScroll
+   * @param {Boolean} [autoScroll]
    *   If scrolling of the results list should be automated. (default=false)
    */
   var setHighlighted = function(index, autoScroll) {
@@ -383,8 +383,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   /**
    * Redraws the autocomplete list based on current query and focus.
    *
-   * @param {Boolean} focus
-   *   Force to treat the input element like it's focused.
+   * @param {Boolean} [focus]
+   *   Force to treat the input element like it's focused. (default=false)
    */
   var redraw = function(focus) {
     var query = $input.val();
