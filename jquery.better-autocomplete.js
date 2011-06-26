@@ -377,13 +377,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     });
 
   inputEvents.focus = function() {
-    // Parse results to be sure, the input value may have changed
-    redraw();
-    $results.show();
+    redraw(true);
   };
 
   inputEvents.blur = function() {
-    $results.hide();
+    redraw();
   };
 
   inputEvents.keydown = function(event) {
@@ -406,24 +404,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         // Disable the auto-triggered mouseover event
         disableMouseHighlight = true;
 
-        // TODO: Lots of evil code here, could be a flag on setHighlighted "autoscroll"?
-        setHighlighted(newIndex);
+        setHighlighted(newIndex, true);
 
-        // Automatic scrolling to the highlighted result
-        var $scrollTo = $('.result', $results).eq(getHighlighted());
-
-        // Scrolling up, then show the group title
-        if ($scrollTo.prev().is('.group') && event.keyCode == 38) {
-          $scrollTo = $scrollTo.prev();
-        }
-        // Is the result above the visible region?
-        if ($scrollTo.position().top < 0) {
-          $results.scrollTop($scrollTo.position().top + $results.scrollTop());
-        }
-        // Or is it below the visible region?
-        else if (($scrollTo.position().top + $scrollTo.outerHeight()) > $results.height()) {
-          $results.scrollTop($scrollTo.position().top + $results.scrollTop() + $scrollTo.outerHeight() - $results.height());
-        }
         return false;
       }
     }
@@ -525,13 +507,34 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   /**
    * Set highlight to a specific result item
    *
-   * @param index
+   * @param {Number} index
    *   The result's index, starting on 0
+   *
+   * @param {Boolean} autoScroll
+   *   If scrolling of the results list should be automated. (default=false)
    */
-  var setHighlighted = function(index) {
-    $('.result', $results)
+  var setHighlighted = function(index, autoScroll) {
+    // Scrolling upwards
+    var up = index == 0 || index < getHighlighted();
+    var $scrollTo = $('.result', $results)
       .removeClass('highlight')
       .eq(index).addClass('highlight');
+
+    if (!autoScroll) {
+      return;
+    }
+    // Scrolling up, then make sure to show the group title
+    if ($scrollTo.prev().is('.group') && up) {
+      $scrollTo = $scrollTo.prev();
+    }
+    // Is $scrollTo partly above the visible region?
+    if ($scrollTo.position().top < 0) {
+      $results.scrollTop($scrollTo.position().top + $results.scrollTop());
+    }
+    // Or is it partly below the visible region?
+    else if (($scrollTo.position().top + $scrollTo.outerHeight()) > $results.height()) {
+      $results.scrollTop($scrollTo.position().top + $results.scrollTop() + $scrollTo.outerHeight() - $results.height());
+    }
   };
 
   /**
@@ -599,8 +602,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   /**
    * Redraws the autocomplete list based on current query and focus.
+   *
+   * @param {Boolean} focus
+   *   Force to treat the input element like it's focused.
    */
-  var redraw = function() {
+  var redraw = function(focus) {
     var query = $input.val();
 
     // The query does not exist in db
@@ -608,15 +614,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       lastRenderedQuery = null;
       $results.empty();
     }
-    // The query exists and is not already drawn
+    // The query exists and is not already rendered
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
       renderResults(results[query]);
-      setHighlighted(0);
+      setHighlighted(0, true);
     }
-
     // Finally show/hide based on focus and emptiness
-    if ($input.is(':focus') && !$results.is(':empty')) {
+    // TODO: ScrollTop is reset to 0 when it's hidden. Maybe wrapper is needed anyway?
+    if (($input.is(':focus') || focus) && !$results.is(':empty')) {
       $results.show();
     }
     else {
