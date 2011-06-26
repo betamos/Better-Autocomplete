@@ -145,7 +145,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     results = {}, // Key-valued caching of search results
     timer, // Used for options.delay
     activeRemoteCalls = 0,
-    disableMouseHighlight = false,
+    disableMouseHighlight = false, // Suppress the auto-triggered mouseover event
     inputEvents = {},
     isLocal = ($.type(resource) != 'string');
 
@@ -184,12 +184,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       }
       // Index have changed so update highlighted element, then cancel the event.
       if ($.type(newIndex) == 'number') {
-
-        // Disable the auto-triggered mouseover event
         disableMouseHighlight = true;
-
         setHighlighted(newIndex, true);
-
         return false;
       }
     }
