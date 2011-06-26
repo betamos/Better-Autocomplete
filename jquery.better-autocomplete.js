@@ -207,7 +207,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
      *   The resource provided in the {@link jQuery.betterAutocomplete} init
      *   constructor.
      *
-     * @return {Array}
+     * @return {Array[Object]}
      *   A flat array containing pure result objects. Must return an array.
      */
     queryLocalResults: function(query, resource) {
@@ -634,7 +634,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Regenerate the DOM content within the results list for a given set of
    * results. Heavy method, use only when necessary.
    *
-   * @param {Array} results
+   * @param {Array[Object]} results
    *   An array of result objects to render.
    */
   var renderResults = function(results) {
