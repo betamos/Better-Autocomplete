@@ -51,6 +51,11 @@
  *     maxHeight: (default=330) The maximum height in pixels for the
  *     autocomplete list.
  *   </li><li>
+ *     cacheLimit: (default=256 for remote or 0 for local resource) The maximum
+ *     number of result objects to store in the cache. This option reduces
+ *     server load if the user deletes characters to check back on previous
+ *     results. To disable caching of previous results, set this option to 0.
+ *   </li><li>
  *     remoteTimeout: (default=10000) The timeout for remote (AJAX) calls.
  *   </li><li>
  *     selectKeys: (default=[9, 13]) The key codes for keys which will select
@@ -130,23 +135,26 @@ $.fn.betterAutocomplete = function(method) {
  */
 var BetterAutocomplete = function($input, resource, options, callbacks) {
 
-  options = $.extend({
-    charLimit: 3,
-    delay: 350, // milliseconds
-    maxHeight: 330, // px
-    remoteTimeout: 10000, // milliseconds
-    selectKeys: [9, 13] // [tab, enter]
-  }, options);
-
-  callbacks = $.extend({}, defaultCallbacks, callbacks);
-
   var lastRenderedQuery = '',
-    results = {}, // Key-valued caching of search results
+    cache = {}, // Key-valued caching of search results
+    cacheOrder = [], // Array of query strings, in the order they are added
+    cacheSize = 0, // Keep count of the cache's size
     timer, // Used for options.delay
     activeRemoteCalls = 0,
     disableMouseHighlight = false, // Suppress the auto-triggered mouseover event
     inputEvents = {},
     isLocal = ($.type(resource) != 'string');
+
+  options = $.extend({
+    charLimit: 3,
+    delay: 350, // milliseconds
+    maxHeight: 330, // px
+    cacheLimit: isLocal ? 0 : 256, // Number of result objects
+    remoteTimeout: 10000, // milliseconds
+    selectKeys: [9, 13] // [tab, enter]
+  }, options);
+
+  callbacks = $.extend({}, defaultCallbacks, callbacks);
 
   var $results = $('<ul />')
     .addClass('better-autocomplete')
@@ -205,7 +213,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Indicate that timer is inactive
     timer = null;
     redraw();
-    if (query.length >= options.charLimit && !$.isArray(results[query])) {
+    if (query.length >= options.charLimit && !$.isArray(cache[query])) {
       // Fetching is required
       $results.empty();
       if (isLocal) {
@@ -284,6 +292,30 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    */
 
   /**
+   * Add an array of results to the cache. Internal methods always reads from
+   * the cache, so this method must be invoked even when caching is not used,
+   * e.g. when using local results. This method automatically clears as much of
+   * the cache as required to fit within the cache limit.
+   *
+   * @param {String} query
+   *   The query to set the results to.
+   *
+   * @param {Array[Object]} results
+   *   The array of results for this query.
+   */
+  var cacheResults = function(query, results) {
+    cacheSize += results.length;
+    // Now reduce size until it fits
+    while (cacheSize > options.cacheLimit && cacheOrder.length) {
+      var key = cacheOrder.shift();
+      cacheSize -= cache[key].length;
+      delete cache[key];
+    }
+    cacheOrder.push(query);
+    cache[query] = results;
+  };
+
+  /**
    * Set highlight to a specific result item
    *
    * @param {Number} index
@@ -356,7 +388,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var fetchResults = function(query) {
     // Synchronously fetch local data
     if (isLocal) {
-      results[query] = callbacks.queryLocalResults(query, resource);
+      cacheResults(query, callbacks.queryLocalResults(query, resource));
       redraw();
     }
     // Asynchronously fetch remote data
@@ -369,7 +401,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         if (!$.isArray(searchResults)) {
           searchResults = [];
         }
-        results[query] = searchResults;
+        cacheResults(query, searchResults);
         activeRemoteCalls--;
         if (activeRemoteCalls == 0) {
           callbacks.finishFetching($input);
@@ -389,14 +421,14 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     var query = $input.val();
 
     // The query does not exist in db
-    if (!$.isArray(results[query])) {
+    if (!$.isArray(cache[query])) {
       lastRenderedQuery = null;
       $results.empty();
     }
     // The query exists and is not already rendered
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
-      renderResults(results[query]);
+      renderResults(cache[query]);
       setHighlighted(0);
     }
     // Finally show/hide based on focus and emptiness
