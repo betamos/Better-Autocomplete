@@ -64,26 +64,32 @@ var colors = [
     description: 'I know, I know, it may not be a color, but who cares? This is a demonstration and I wan\'t to have a long text that wraps.'
   }];
 
+var phoneNumbers = [{
+  title: '011-234 009 13',
+  description: 'James Johnsson'
+}, {
+  title: '0177-13 23 14',
+  description: 'John Smith'
+}, {
+  title: '(+33)-75 078 66',
+  description: 'Harry Pretzel'
+}];
+
 $(document).ready(function() {
 
-  //Local source, string array
-  $('#city').betterAutocomplete('init', cities, { charLimit: 1 }, {
-    select: function(result) {
-      $('#city').blur();
-      alert('You selected ' + result.title);
-    }
-  });
+  //Local source, string array. Simplest setup possible
+  $('#city').betterAutocomplete('init', cities, {}, {});
 
   // Local source, results objects array
-  $('#color').betterAutocomplete('init', colors, { charLimit: 1 }, {
-    select: function(result) {
-      $('#color').blur();
+  $('#color').betterAutocomplete('init', colors, {}, {
+    select: function(result, $input) {
+      $input.blur();
       alert('You selected ' + result.title);
     }
   });
 
   // A remote JSON resource
-  $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', { maxHeight: 200 }, {
+  $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', {}, {
     processRemoteData: function(data) {
       if ($.type(data) == 'object' && $.isArray(data.geonames))
         return data.geonames;
@@ -95,13 +101,36 @@ $(document).ready(function() {
       output += '<p>' + result.countryName + ' <em>(' + result.fclName + ')</em></p>';
       return output;
     },
-    select: function(result) {
-      $('#geonames').blur();
-      alert('You selected ' + result.name);
+    select: function(result, $input) {
+      $input.blur();
+      window.open('http://maps.google.com/maps?q=' + encodeURIComponent(result.name + ', ' + result.countryName), 'Google Maps');
     },
     getGroup: function(result) {
       if ($.type(result.countryName) == 'string' && result.countryName.length)
         return result.countryName;
+    }
+  });
+
+  // Local source with canonical query callback
+  $('#phone').betterAutocomplete('init', phoneNumbers, { maxHeight: 200 }, {
+    canonicalQuery: function(rawQuery, caseSensitive) {
+      // Strip away everything except digits
+      var query = rawQuery.replace(/[^\d]/g, '');
+      return query;
+    },
+    // The canonical query will later be used in other callbacks, such as this
+    queryLocalResults: function(query, resource, caseSensitive) {
+      var results = [];
+      $.each(resource, function(i, result) {
+        // Compare solely the digits
+         if (result.title.replace(/[^\d]/g, '').indexOf(query) >= 0) {
+           results.push(result);
+         }
+      });
+      return results;
+    },
+    select: function(result, $input) {
+      $input.val(result.title).blur();
     }
   });
 
@@ -126,11 +155,18 @@ $(document).ready(function() {
   <input type="text" id="color" name="color" />
 </form>
 
-<h2>Remote source, geonames.org JSON API</h2>
+<h2>Remote source, geonames.org JSON API, custom select handler</h2>
 
 <form>
-  <label for="geonames">Select a geographical location</label><br />
+  <label for="geonames">Find your favourite city!</label><br />
   <input type="text" id="geonames" name="geonames" />
+</form>
+
+<h2>Local source, using canonical query callback</h2>
+
+<form>
+  <label for="phone">Search for a phone number (try formatting it any way)</label><br />
+  <input type="text" id="phone" name="phone" />
 </form>
 
 </body>
