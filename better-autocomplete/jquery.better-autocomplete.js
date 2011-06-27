@@ -168,8 +168,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   $results.width($input.outerWidth() - 2) // Subtract border width.
     .css({
       maxHeight: options.maxHeight + 'px',
-      left: $results.position().left + $input.offset().left,
-      top: $results.position().top + $input.offset().top + $input.outerHeight()
+      left: $results.position().left + $input.position().left,
+      top: $results.position().top + $input.position().top + $input.outerHeight()
     });
 
   inputEvents.focus = function() {
