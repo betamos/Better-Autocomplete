@@ -41,12 +41,13 @@
  * @param {Object} [options]
  *   An object with configurable options:
  *   <ul><li>
- *     charLimit: (default=3) The minimum number of chars to do an AJAX call.
- *     A typical use case for this limit is to reduce server load.
+ *     charLimit: (default=3 for remote or 1 for local resource) The minimum
+ *     number of chars to do an AJAX call. A typical use case for this limit is
+ *     to reduce server load.
  *   </li><li>
  *     delay: (default=350) The time in ms between last keypress and AJAX call.
  *     Typically used to prevent looking up irrelevant strings while the user
- *     is still typing.
+ *     is still typing. Only relevant for remote resources.
  *   </li><li>
  *     maxHeight: (default=330) The maximum height in pixels for the
  *     autocomplete list.
@@ -149,7 +150,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     isLocal = ($.type(resource) != 'string');
 
   options = $.extend({
-    charLimit: 3,
+    charLimit: isLocal ? 1 : 3,
     delay: 350, // milliseconds
     maxHeight: 330, // px
     caseSensitive: false,
