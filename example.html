@@ -82,7 +82,7 @@ $(document).ready(function() {
 
   // Local source, results objects array
   $('#color').betterAutocomplete('init', colors, {}, {
-    select: function(result, $input) {
+    select: function(result, $input) { // Custom select callback
       $input.blur();
       alert('You selected ' + result.title);
     }
@@ -128,9 +128,6 @@ $(document).ready(function() {
          }
       });
       return results;
-    },
-    select: function(result, $input) {
-      $input.val(result.title).blur();
     }
   });
 
