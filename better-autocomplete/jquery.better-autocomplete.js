@@ -51,6 +51,9 @@
  *     maxHeight: (default=330) The maximum height in pixels for the
  *     autocomplete list.
  *   </li><li>
+ *     caseSensitive: (default=false) If the search should be case sensitive.
+ *     If false, query strings will be converted to lowercase.
+ *   </li><li>
  *     cacheLimit: (default=256 for remote or 0 for local resource) The maximum
  *     number of result objects to store in the cache. This option reduces
  *     server load if the user deletes characters to check back on previous
@@ -149,6 +152,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     charLimit: 3,
     delay: 350, // milliseconds
     maxHeight: 330, // px
+    caseSensitive: false,
     cacheLimit: isLocal ? 0 : 256, // Number of result objects
     remoteTimeout: 10000, // milliseconds
     selectKeys: [9, 13] // [tab, enter]
@@ -208,7 +212,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   inputEvents.keyup = function() {
-    var query = callbacks.canonicalQuery($input.val());
+    var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
     clearTimeout(timer);
     // Indicate that timer is inactive
     timer = null;
@@ -217,11 +221,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       // Fetching is required
       $results.empty();
       if (isLocal) {
-        fetchResults($input.val());
+        fetchResults(query);
       }
       else {
         timer = setTimeout(function() {
-          fetchResults($input.val());
+          fetchResults(query);
           timer = null;
         }, options.delay);
       }
@@ -304,6 +308,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   The array of results for this query.
    */
   var cacheResults = function(query, results) {
+    console.log($.isArray(cache[query]));
     cacheSize += results.length;
     // Now reduce size until it fits
     while (cacheSize > options.cacheLimit && cacheOrder.length) {
@@ -388,7 +393,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var fetchResults = function(query) {
     // Synchronously fetch local data
     if (isLocal) {
-      cacheResults(query, callbacks.queryLocalResults(query, resource));
+      cacheResults(query, callbacks.queryLocalResults(query, resource, options.caseSensitive));
       redraw();
     }
     // Asynchronously fetch remote data
@@ -418,7 +423,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   Force to treat the input element like it's focused. (default=false)
    */
   var redraw = function(focus) {
-    var query = callbacks.canonicalQuery($input.val());
+    var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
 
     // The query does not exist in db
     if (!$.isArray(cache[query])) {
@@ -559,35 +564,38 @@ var defaultCallbacks = {
    *
    * @param {String} query
    *   The query string, unescaped. May contain any UTF-8 character.
+   *   If case insensitive, it already is lowercased.
    *
    * @param {Object} resource
    *   The resource provided in the {@link jQuery.betterAutocomplete} init
    *   constructor.
    *
+   * @param {Boolean} caseSensitive
+   *   From options.caseSensitive, the searching should be case sensitive.
+   *
    * @return {Array[Object]}
    *   A flat array containing pure result objects. Must return an array.
    */
-  queryLocalResults: function(query, resource) {
+  queryLocalResults: function(query, resource, caseSensitive) {
     if (!$.isArray(resource)) {
       // Per default Better Autocomplete only handles arrays
       return [];
     }
-    query = query.toLowerCase();
     var results = [];
     $.each(resource, function(i, value) {
       switch ($.type(value)) {
       case 'string': // Flat array of strings
-        if (value.toLowerCase().indexOf(query) >= 0) {
+        if ((caseSensitive ? value : value.toLowerCase()).indexOf(query) >= 0) {
           // Match found
           results.push({ title: value });
         }
         break;
       case 'object': // Array of result objects
-        if ($.type(value.title) == 'string' && value.title.toLowerCase().indexOf(query) >= 0) {
+        if ($.type(value.title) == 'string' && (caseSensitive ? value.title : value.title.toLowerCase()).indexOf(query) >= 0) {
           // Match found in title field
           results.push(value);
         }
-        else if ($.type(value.description) == 'string' && value.description.toLowerCase().indexOf(query) >= 0) {
+        else if ($.type(value.description) == 'string' && (caseSensitive ? value.description : value.description.toLowerCase()).indexOf(query) >= 0) {
           // Match found in description field
           results.push(value);
         }
@@ -727,11 +735,18 @@ var defaultCallbacks = {
    * @param {String} rawQuery
    *   The user's raw input.
    *
+   * @param {Boolean} caseSensitive
+   *   Case sensitive. Will convert to lowercase if false.
+   *
    * @returns {String}
    *   The canonical query associated with this string.
    */
-  canonicalQuery: function(rawQuery) {
-    return $.trim(rawQuery);
+  canonicalQuery: function(rawQuery, caseSensitive) {
+    var query = $.trim(rawQuery);
+    if (!caseSensitive) {
+      query = query.toLowerCase();
+    }
+    return query;
   }
 };
 
