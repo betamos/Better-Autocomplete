@@ -162,15 +162,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   callbacks = $.extend({}, defaultCallbacks, callbacks);
 
   var $results = $('<ul />')
-    .addClass('better-autocomplete')
-    .insertAfter($input);
+    .addClass('better-autocomplete');
 
-  $results.width($input.outerWidth() - 2) // Subtract border width.
-    .css({
-      maxHeight: options.maxHeight + 'px',
-      left: $results.position().left + $input.position().left,
-      top: $results.position().top + $input.position().top + $input.outerHeight()
-    });
+  callbacks.insertSuggestionList($results, $input, options.maxHeight);
 
   inputEvents.focus = function() {
     redraw(true);
@@ -750,6 +744,37 @@ var defaultCallbacks = {
       query = query.toLowerCase();
     }
     return query;
+  },
+
+  /**
+   * Insert the results list into the DOM and position it properly.
+   *
+   * <br /><br /><em>Default behavior: Inserts suggestion list directly
+   * after the input element and sets an absolute position using
+   * jQuery.position() for determining left/top values. Also adds a nice
+   * looking box-shadow to the list.</em>
+   *
+   * @param {Object} $results
+   *   The UL list element to insert, wrapped in jQuery.
+   *
+   * @param {Object} $input
+   *   The text input element, wrapped in jQuery.
+   *
+   * @param {Number} maxHeight
+   *   The preferred max height for the results list.
+   */
+  // TODO: Common object for altering width, max height, position offset
+  insertSuggestionList: function($results, $input, maxHeight) {
+    $results.width($input.outerWidth() - 2) // Subtract border width.
+      .css({
+        position: 'absolute',
+        left: $input.position().left,
+        top: $input.position().top + $input.outerHeight(),
+        zIndex: 10,
+        maxHeight: maxHeight + 'px',
+        boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)' // Visually indicate that results are in the topmost layer
+      })
+      .insertAfter($input);
   }
 };
 

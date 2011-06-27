@@ -18,16 +18,9 @@
 }
 
 .better-autocomplete {
-  position: absolute;
-  /* To alter the position of the results, override the left and top values. */
-  left: 0;
-  top: 0;
   text-align: left;
   font-family: 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
-  /* 10, of course, is an arbitrary number. Override if necessary. */
-  z-index: 10;
   overflow: auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
   cursor: default;
   background: white;
 }
