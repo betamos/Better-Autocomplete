@@ -308,7 +308,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   The array of results for this query.
    */
   var cacheResults = function(query, results) {
-    console.log($.isArray(cache[query]));
     cacheSize += results.length;
     // Now reduce size until it fits
     while (cacheSize > options.cacheLimit && cacheOrder.length) {
@@ -376,7 +375,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     }
     var result = $result.data('result');
 
-    callbacks.select(result);
+    callbacks.select(result, $input);
 
     // Redraw again, if the callback changed focus or content
     redraw();
