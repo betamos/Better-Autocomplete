@@ -528,7 +528,7 @@ var defaultCallbacks = {
    *   The input DOM element, wrapped in jQuery.
    */
   select: function(result, $input) {
-    $input.blur();
+    $input.blur().val(result.title);
   },
 
   /**
