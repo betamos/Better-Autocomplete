@@ -143,7 +143,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     cacheOrder = [], // Array of query strings, in the order they are added
     cacheSize = 0, // Keep count of the cache's size
     timer, // Used for options.delay
-    activeRemoteCalls = 0,
+    activeRemoteCalls = [], // A flat array of query strings that are pending
     disableMouseHighlight = false, // Suppress the auto-triggered mouseover event
     inputEvents = {},
     isLocal = ($.type(resource) != 'string');
@@ -202,7 +202,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     }
     else if (options.selectKeys.indexOf(event.keyCode) >= 0) {
       // Only hijack the event if selecting is possible or pending action.
-      if (select() || activeRemoteCalls >= 1 || timer !== null) {
+      if (select() || activeRemoteCalls.length >= 1 || timer !== null) {
         return false;
       }
       else {
@@ -217,7 +217,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Indicate that timer is inactive
     timer = null;
     redraw();
-    if (query.length >= options.charLimit && !$.isArray(cache[query])) {
+    if (query.length >= options.charLimit && !$.isArray(cache[query]) && activeRemoteCalls.indexOf(query) == -1) {
       // Fetching is required
       $results.empty();
       if (isLocal) {
@@ -398,7 +398,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     }
     // Asynchronously fetch remote data
     else {
-      activeRemoteCalls++;
+      activeRemoteCalls.push(query);
       var url = callbacks.constructURL(resource, query);
       callbacks.beginFetching($input);
       callbacks.fetchRemoteData(url, function(data) {
@@ -407,8 +407,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
           searchResults = [];
         }
         cacheResults(query, searchResults);
-        activeRemoteCalls--;
-        if (activeRemoteCalls == 0) {
+        // Remove the query from active remote calls, since it's finished
+        activeRemoteCalls = $.grep(activeRemoteCalls, function(value) {
+          return value != query;
+        });
+        if (!activeRemoteCalls.length) {
           callbacks.finishFetching($input);
         }
         redraw();
