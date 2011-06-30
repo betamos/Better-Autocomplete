@@ -1,7 +1,5 @@
 /**
- * Better Autocomplete jQuery plugin.
- * Create or alter an autocomplete object instance to every text input
- * element in the selection.
+ * Better Autocomplete is a jQuery plugin.
  *
  * @author Didrik Nordström, http://betamos.se/
  *
@@ -15,6 +13,10 @@
  * @constructor
  *
  * @name jQuery.betterAutocomplete
+ *
+ * @description Create or alter an autocomplete object instance that belongs to
+ * the elements in the selection. Make sure there are only text field elements
+ * in the selection.
  *
  * @param {String} method
  *   Should be one of the following:
@@ -117,7 +119,7 @@ $.fn.betterAutocomplete = function(method) {
       break;
     default:
       $.error(['Method', method,
-        'does not exist in jQuery.betterAutocomplete.'].join(' '));
+          'does not exist in jQuery.betterAutocomplete.'].join(' '));
     }
   });
 
