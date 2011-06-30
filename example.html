@@ -20,6 +20,11 @@ input.fetching {
   background: lightgrey;
 }
 
+#last-selection {
+  font-size: 10px;
+  color: green;
+}
+
 </style>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
@@ -83,8 +88,8 @@ $(document).ready(function() {
   // Local source, results objects array
   $('#color').betterAutocomplete('init', colors, {}, {
     select: function(result, $input) { // Custom select callback
-      $input.blur();
-      alert('You selected ' + result.title);
+      $input.val(result.title);
+      $('#last-selection').text('You selected ' + result.title);
     }
   });
 
@@ -138,11 +143,11 @@ $(document).ready(function() {
 <body>
 <h1>Better Autocomplete demonstration</h1>
 
-<h2>Local source, flat string array</h2>
+<h2>Local source, flat string array, HTML5 search input</h2>
 
 <form>
   <label for="city">Please select a city</label><br />
-  <input type="text" id="city" name="city" />
+  <input type="search" id="city" name="city" />
 </form>
 
 <h2>Local source, array of result objects</h2>
@@ -150,6 +155,7 @@ $(document).ready(function() {
 <form>
   <label for="color">Please select a color</label><br />
   <input type="text" id="color" name="color" />
+  <div id="last-selection">You have not yet selected anything.</div>
 </form>
 
 <h2>Remote source, geonames.org JSON API, custom select handler</h2>
