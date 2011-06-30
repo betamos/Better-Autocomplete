@@ -320,7 +320,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Set highlight to a specific result item
    *
    * @param {Number} index
-   *   The result's index, starting on 0
+   *   The result's index, starting at 0.
    *
    * @param {Boolean} [autoScroll]
    *   (default=false) If scrolling of the results list should be automated.
@@ -354,8 +354,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   /**
    * Retrieve the index of the currently highlighted result item
    *
-   * @return
-   *   The result's index or -1 if no result is highlighted
+   * @returns {Number}
+   *   The result's index or -1 if no result is highlighted.
    */
   var getHighlighted = function() {
     return $('.result', $results).index($('.result.highlight', $results));
@@ -379,13 +379,14 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Fetch results asynchronously via AJAX.
    * Errors are ignored.
    *
-   * @param query
-   *   The query string
+   * @param {String} query
+   *   The query string.
    */
   var fetchResults = function(query) {
     // Synchronously fetch local data
     if (isLocal) {
-      cacheResults(query, callbacks.queryLocalResults(query, resource, options.caseSensitive));
+      cacheResults(query, callbacks.queryLocalResults(query, resource,
+                                                      options.caseSensitive));
       redraw();
     }
     // Asynchronously fetch remote data
@@ -415,7 +416,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * Redraws the autocomplete list based on current query and focus.
    *
    * @param {Boolean} [focus]
-   *   Force to treat the input element like it's focused. (default=false)
+   *   (default=false) Force to treat the input element like it's focused.
    */
   var redraw = function(focus) {
     var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
@@ -479,11 +480,13 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .addClass(result.addClass);
 
       // First groupless item
-      if ($.type(group) != 'string' && !$results.children().first().is('.result')) {
+      if ($.type(group) != 'string' &&
+          !$results.children().first().is('.result')) {
         $results.prepend($result);
         return; // Continue
       }
-      var $traverseFrom = ($.type(group) == 'string') ? groups[group] : $results.children().first();
+      var $traverseFrom = ($.type(group) == 'string') ?
+                          groups[group] : $results.children().first();
       var $target = $traverseFrom.nextUntil('.group').last();
       $result.insertAfter($target.length ? $target : $traverseFrom);
     });
@@ -570,7 +573,7 @@ var defaultCallbacks = {
    * @param {Boolean} caseSensitive
    *   From options.caseSensitive, the searching should be case sensitive.
    *
-   * @return {Array[Object]}
+   * @returns {Array[Object]}
    *   A flat array containing pure result objects. Must return an array.
    */
   queryLocalResults: function(query, resource, caseSensitive) {
@@ -582,17 +585,22 @@ var defaultCallbacks = {
     $.each(resource, function(i, value) {
       switch ($.type(value)) {
       case 'string': // Flat array of strings
-        if ((caseSensitive ? value : value.toLowerCase()).indexOf(query) >= 0) {
+        if ((caseSensitive ? value : value.toLowerCase())
+            .indexOf(query) >= 0) {
           // Match found
           results.push({ title: value });
         }
         break;
       case 'object': // Array of result objects
-        if ($.type(value.title) == 'string' && (caseSensitive ? value.title : value.title.toLowerCase()).indexOf(query) >= 0) {
+        if ($.type(value.title) == 'string' &&
+            (caseSensitive ? value.title : value.title.toLowerCase())
+            .indexOf(query) >= 0) {
           // Match found in title field
           results.push(value);
         }
-        else if ($.type(value.description) == 'string' && (caseSensitive ? value.description : value.description.toLowerCase()).indexOf(query) >= 0) {
+        else if ($.type(value.description) == 'string' &&
+                 (caseSensitive ? value.description :
+                 value.description.toLowerCase()).indexOf(query) >= 0) {
           // Match found in description field
           results.push(value);
         }
@@ -772,7 +780,8 @@ var defaultCallbacks = {
         top: $input.position().top + $input.outerHeight(),
         zIndex: 10,
         maxHeight: maxHeight + 'px',
-        boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)' // Visually indicate that results are in the topmost layer
+        // Visually indicate that results are in the topmost layer
+        boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)'
       })
       .insertAfter($input);
   }
