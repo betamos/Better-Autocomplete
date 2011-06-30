@@ -49,9 +49,6 @@
  *     Typically used to prevent looking up irrelevant strings while the user
  *     is still typing. Only relevant for remote resources.
  *   </li><li>
- *     maxHeight: (default=330) The maximum height in pixels for the
- *     autocomplete list.
- *   </li><li>
  *     caseSensitive: (default=false) If the search should be case sensitive.
  *     If false, query strings will be converted to lowercase.
  *   </li><li>
@@ -153,7 +150,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   options = $.extend({
     charLimit: isLocal ? 1 : 3,
     delay: 350, // milliseconds
-    maxHeight: 330, // px
     caseSensitive: false,
     cacheLimit: isLocal ? 0 : 256, // Number of result objects
     remoteTimeout: 10000, // milliseconds
@@ -767,19 +763,15 @@ var defaultCallbacks = {
    *
    * @param {Object} $input
    *   The text input element, wrapped in jQuery.
-   *
-   * @param {Number} maxHeight
-   *   The preferred max height for the results list.
    */
-  // TODO: Common object for altering width, max height, position offset
-  insertSuggestionList: function($results, $input, maxHeight) {
+  insertSuggestionList: function($results, $input) {
     $results.width($input.outerWidth() - 2) // Subtract border width.
       .css({
         position: 'absolute',
         left: $input.position().left,
         top: $input.position().top + $input.outerHeight(),
         zIndex: 10,
-        maxHeight: maxHeight + 'px',
+        maxHeight: '330px',
         // Visually indicate that results are in the topmost layer
         boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)'
       })
