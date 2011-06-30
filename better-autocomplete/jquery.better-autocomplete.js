@@ -512,7 +512,8 @@ var defaultCallbacks = {
    * Gets fired when the user selects a result by clicking or using the
    * keyboard to select an element.
    *
-   * <br /><br /><em>Default behavior: Simply blurs the input field.</em>
+   * <br /><br /><em>Default behavior: Inserts the result's title into the
+   * input field.</em>
    *
    * @param {Object} result
    *   The result object that was selected.
@@ -521,7 +522,7 @@ var defaultCallbacks = {
    *   The input DOM element, wrapped in jQuery.
    */
   select: function(result, $input) {
-    $input.blur().val(result.title);
+    $input.val(result.title);
   },
 
   /**
