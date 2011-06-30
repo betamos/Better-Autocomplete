@@ -17,9 +17,8 @@ The state of this plugin
 ------------------------
 
 This plugin is as good as ready in many ways and is developed over a couple of
-months, so the codebase is solid and tested in multiple environments. Some none
-critical features and API-changes may occur before an initial release which
-hopefully will occur within a week from now (2011-06-22).
+months, so the codebase is solid and tested in multiple environments. This
+project will enter beta stage as soon as it has been tested properly in IE 8-9.
 
 Also in the case of Internet Explorer I can tell that it has *not* been tested
 at all in IE yet. It may just work perfectly fine (for IE7+) or
