@@ -105,7 +105,7 @@ $.fn.betterAutocomplete = function(method) {
   var args = Array.prototype.slice.call(arguments, 1);
 
   // Method calling logic
-  this.filter(':input[type=text]').each(function() {
+  this.each(function() {
     switch (method) {
     case 'init':
       methods[method].apply(this, args);
@@ -228,6 +228,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         }, options.delay);
       }
     }
+  };
+
+  // Input with type="search" have a clickable X which clears the input field.
+  inputEvents.click = function() {
+    redraw();
   };
 
   $('.result', $results[0]).live({
