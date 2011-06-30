@@ -176,10 +176,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   inputEvents.keydown = function(event) {
-    var index;
+    var index = getHighlighted();
     // If an arrow key is pressed and a result is highlighted
-    if ([38, 40].indexOf(event.keyCode) >= 0 &&
-        (index = getHighlighted()) >= 0) {
+    if ([38, 40].indexOf(event.keyCode) >= 0 && index >= 0) {
       var newIndex,
         size = $('.result', $results).length;
       switch (event.keyCode) {
@@ -190,12 +189,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         newIndex = Math.min(size - 1, index + 1);
         break;
       }
-      // Index have changed so update highlighted, then cancel the event.
-      if ($.type(newIndex) == 'number') {
-        disableMouseHighlight = true;
-        setHighlighted(newIndex, true);
-        return false;
-      }
+      disableMouseHighlight = true;
+      setHighlighted(newIndex, true);
+      return false;
     }
     else if (options.selectKeys.indexOf(event.keyCode) >= 0) {
       // Only hijack the event if selecting is possible or pending action.
