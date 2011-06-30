@@ -27,7 +27,8 @@ input.fetching {
 
 </style>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
+</script>
 <script src="better-autocomplete/jquery.better-autocomplete.js"></script>
 <script>
 
@@ -50,7 +51,7 @@ var colors = [
   {
     title: 'Red',
     description: 'The color of the heart.',
-    group: 'Ground colors' // Grouping is supported with both local and remote resources
+    group: 'Ground colors' // Grouping
   },
   'Yellow', // You can even mix real result objects with plain strings
   {
@@ -66,7 +67,9 @@ var colors = [
     group: 'Ground colors'
   }, {
     title: 'Beer',
-    description: 'I know, I know, it may not be a color, but who cares? This is a demonstration and I wan\'t to have a long text that wraps.'
+    description: 'I know, I know, it may not be a color, but who cares? ' +
+                 'This is a demonstration and I wan\'t to have a long text ' +
+                 'that wraps.'
   }];
 
 var phoneNumbers = [{
@@ -94,7 +97,8 @@ $(document).ready(function() {
   });
 
   // A remote JSON resource
-  $('#geonames').betterAutocomplete('init', 'http://ws.geonames.org/searchJSON', {}, {
+  $('#geonames').betterAutocomplete('init',
+      'http://ws.geonames.org/searchJSON', { cacheLimit: 128 }, {
     processRemoteData: function(data) {
       if ($.type(data) == 'object' && $.isArray(data.geonames))
         return data.geonames;
@@ -103,12 +107,15 @@ $(document).ready(function() {
     },
     themeResult: function(result) {
       output = '<h4>' + result.name + '</h4>';
-      output += '<p>' + result.countryName + ' <em>(' + result.fclName + ')</em></p>';
+      output += '<p>' + result.countryName + ' <em>(' + result.fclName +
+                ')</em></p>';
       return output;
     },
     select: function(result, $input) {
       $input.blur();
-      window.open('http://maps.google.com/maps?q=' + encodeURIComponent(result.name + ', ' + result.countryName), 'Google Maps');
+      window.open('http://maps.google.com/maps?q=' +
+                  encodeURIComponent(result.name + ', ' + result.countryName),
+                  'Google Maps');
     },
     getGroup: function(result) {
       if ($.type(result.countryName) == 'string' && result.countryName.length)
@@ -117,7 +124,7 @@ $(document).ready(function() {
   });
 
   // Local source with canonical query callback
-  $('#phone').betterAutocomplete('init', phoneNumbers, { maxHeight: 200 }, {
+  $('#phone').betterAutocomplete('init', phoneNumbers, {}, {
     canonicalQuery: function(rawQuery, caseSensitive) {
       // Strip away everything except digits
       var query = rawQuery.replace(/[^\d]/g, '');
@@ -168,7 +175,8 @@ $(document).ready(function() {
 <h2>Local source, using canonical query callback</h2>
 
 <form>
-  <label for="phone">Search for a phone number (try formatting it any way)</label><br />
+  <label for="phone">Search for a phone number (try formatting it any way)
+  </label><br />
   <input type="text" id="phone" name="phone" />
 </form>
 
