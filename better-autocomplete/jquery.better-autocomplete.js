@@ -193,14 +193,12 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       setHighlighted(newIndex, true);
       return false;
     }
-    else if (options.selectKeys.indexOf(event.keyCode) >= 0) {
-      // Only hijack the event if selecting is possible or pending action.
-      if (select() || activeRemoteCalls.length >= 1 || timer !== null) {
-        return false;
-      }
-      else {
-        return true;
-      }
+    // A select key has been pressed
+    else if (options.selectKeys.indexOf(event.keyCode) >= 0 &&
+             !event.shiftKey && !event.ctrlKey && !event.altKey &&
+             !event.metaKey) {
+      select();
+      return event.keyCode == 9; // Never cancel tab
     }
   };
 
@@ -364,23 +362,17 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   /**
-   * Select the current highlighted element
-   *
-   * @return
-   *   True if a selection was possible
+   * Select the current highlighted element, if any.
    */
   var select = function() {
     var $result = $('.result', $results).eq(getHighlighted());
     if (!$result.length) {
-      return false;
+      return; // No selectable element
     }
     var result = $result.data('result');
-
     callbacks.select(result, $input);
-
     // Redraw again, if the callback changed focus or content
     redraw();
-    return true;
   };
 
   /**
