@@ -75,7 +75,7 @@
  *   The jQuery object with the same element selection, for chaining.
  */
 
-(function ($) {
+(function($) {
 
 $.fn.betterAutocomplete = function(method) {
 
@@ -119,7 +119,8 @@ $.fn.betterAutocomplete = function(method) {
       }
       break;
     default:
-      $.error('Method ' +  method + ' does not exist in jQuery.betterAutocomplete.');
+      $.error(['Method', method,
+        'does not exist in jQuery.betterAutocomplete.'].join(' '));
     }
   });
 
@@ -135,7 +136,7 @@ $.fn.betterAutocomplete = function(method) {
  * @name BetterAutocomplete
  *
  * @param {Object} $input
- *   A single input element wrapped in jQuery
+ *   A single input element wrapped in jQuery.
  */
 var BetterAutocomplete = function($input, resource, options, callbacks) {
 
@@ -145,7 +146,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     cacheSize = 0, // Keep count of the cache's size
     timer, // Used for options.delay
     activeRemoteCalls = [], // A flat array of query strings that are pending
-    disableMouseHighlight = false, // Suppress the auto-triggered mouseover event
+    disableMouseHighlight = false, // Suppress the autotriggered mouseover event
     inputEvents = {},
     isLocal = ($.type(resource) != 'string');
 
@@ -177,18 +178,19 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   inputEvents.keydown = function(event) {
     var index;
     // If an arrow key is pressed and a result is highlighted
-    if ([38, 40].indexOf(event.keyCode) >= 0 && (index = getHighlighted()) >= 0) {
+    if ([38, 40].indexOf(event.keyCode) >= 0 &&
+        (index = getHighlighted()) >= 0) {
       var newIndex,
         size = $('.result', $results).length;
       switch (event.keyCode) {
       case 38: // Up arrow
-        newIndex = Math.max(0, index-1);
+        newIndex = Math.max(0, index - 1);
         break;
       case 40: // Down arrow
-        newIndex = Math.min(size-1, index+1);
+        newIndex = Math.min(size - 1, index + 1);
         break;
       }
-      // Index have changed so update highlighted element, then cancel the event.
+      // Index have changed so update highlighted, then cancel the event.
       if ($.type(newIndex) == 'number') {
         disableMouseHighlight = true;
         setHighlighted(newIndex, true);
@@ -212,7 +214,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Indicate that timer is inactive
     timer = null;
     redraw();
-    if (query.length >= options.charLimit && !$.isArray(cache[query]) && activeRemoteCalls.indexOf(query) == -1) {
+    if (query.length >= options.charLimit && !$.isArray(cache[query]) &&
+        activeRemoteCalls.indexOf(query) == -1) {
       // Fetching is required
       $results.empty();
       if (isLocal) {
@@ -321,7 +324,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   The result's index, starting on 0
    *
    * @param {Boolean} [autoScroll]
-   *   If scrolling of the results list should be automated. (default=false)
+   *   (default=false) If scrolling of the results list should be automated.
    */
   var setHighlighted = function(index, autoScroll) {
     // Scrolling upwards
@@ -342,8 +345,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       $results.scrollTop($scrollTo.position().top + $results.scrollTop());
     }
     // Or is it partly below the visible region?
-    else if (($scrollTo.position().top + $scrollTo.outerHeight()) > $results.height()) {
-      $results.scrollTop($scrollTo.position().top + $results.scrollTop() + $scrollTo.outerHeight() - $results.height());
+    else if (($scrollTo.position().top + $scrollTo.outerHeight()) >
+              $results.height()) {
+      $results.scrollTop($scrollTo.position().top + $results.scrollTop() +
+          $scrollTo.outerHeight() - $results.height());
     }
   };
 
@@ -436,10 +441,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Finally show/hide based on focus and emptiness
     if (($input.is(':focus') || focus) && !$results.is(':empty')) {
       $results.filter(':hidden').show() // Show if hidden
-        .scrollTop($results.data('scroll-top')); // Reset the scrolling that was lost when hidden
+        .scrollTop($results.data('scroll-top')); // Reset the lost scrolling
     }
     else if ($results.is(':visible')) {
-      $results.data('scroll-top', $results.scrollTop()) // Store the scrolling position for later
+      // Store the scrolling position for later
+      $results.data('scroll-top', $results.scrollTop())
         .hide(); // Hiding it resets it's scrollTop
     }
   };
@@ -466,10 +472,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       }
 
       // Add the group if it doesn't exist
-      group = callbacks.getGroup(result);
+      var group = callbacks.getGroup(result);
       if ($.type(group) == 'string' && !groups[group]) {
         var $groupHeading = $('<li />').addClass('group')
-          .append('<h3>' + group + '</h3>')
+          .append($('<h3 />').text(group))
           .appendTo($results);
         groups[group] = $groupHeading;
       }
@@ -540,14 +546,14 @@ var defaultCallbacks = {
    *   HTML output, will be wrapped in a list element.
    */
   themeResult: function(result) {
-    var output = '';
+    var output = [];
     if ($.type(result.title) == 'string') {
-      output += '<h4>' + result.title + '</h4>';
+      output.push('<h4>', result.title, '</h4>');
     }
     if ($.type(result.description) == 'string') {
-      output += '<p>' + result.description + '</p>';
+      output.push('<p>', result.description, '</p>');
     }
-    return output;
+    return output.join('');
   },
 
   /**
