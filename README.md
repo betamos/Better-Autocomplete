@@ -1,4 +1,3 @@
-
 Better Autocomplete jQuery plugin
 =================================
 
@@ -26,13 +25,18 @@ there may be small bugs or even critical bugs. Please feel free to fork and fix
 these potential "bugs" but I want to keep the code clean, and I'm not willing
 to do a lot of ugly hacks just for IE.
 
+Demo and docs
+-------------
+
+Try the [demonstration](http://betamos.se/better-autocomplete/example.html) and
+browse the [documentation](http://betamos.se/better-autocomplete/index.html).
+
 Customizing
 -----------
 
 The most powerful ability of this plugin, compared to others, is that it is
 very flexible. There are callbacks for almost everything. These callbacks
-can be overridden easily by you. There is also automatically generated
-[documentation](http://betamos.se/better-autocomplete/index.html) available.
+can be overridden easily by you. See the docs for details.
 
 Author and license
 ------------------
