@@ -176,7 +176,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   inputEvents.keydown = function(event) {
     var index = getHighlighted();
     // If an arrow key is pressed and a result is highlighted
-    if ([38, 40].indexOf(event.keyCode) >= 0 && index >= 0) {
+    if ($.inArray(event.keyCode, [38, 40]) >= 0 && index >= 0) {
       var newIndex,
         size = $('.result', $results).length;
       switch (event.keyCode) {
@@ -192,7 +192,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       return false;
     }
     // A select key has been pressed
-    else if (options.selectKeys.indexOf(event.keyCode) >= 0 &&
+    else if ($.inArray(event.keyCode, options.selectKeys) >= 0 &&
              !event.shiftKey && !event.ctrlKey && !event.altKey &&
              !event.metaKey) {
       select();
@@ -207,7 +207,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     timer = null;
     redraw();
     if (query.length >= options.charLimit && !$.isArray(cache[query]) &&
-        activeRemoteCalls.indexOf(query) == -1) {
+        $.inArray(query, activeRemoteCalls) == -1) {
       // Fetching is required
       $results.empty();
       if (isLocal) {
