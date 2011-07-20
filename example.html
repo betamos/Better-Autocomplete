@@ -115,7 +115,7 @@ $(document).ready(function() {
       $input.blur();
       window.open('http://maps.google.com/maps?q=' +
                   encodeURIComponent(result.name + ', ' + result.countryName),
-                  'Google Maps');
+                  'map');
     },
     getGroup: function(result) {
       if ($.type(result.countryName) == 'string' && result.countryName.length)
