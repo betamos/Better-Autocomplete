@@ -467,7 +467,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       var group = callbacks.getGroup(result);
       if ($.type(group) == 'string' && !groups[group]) {
         var $groupHeading = $('<li />').addClass('group')
-          .append($('<h3 />').text(group))
+          .append($('<h3 />').html(group))
           .appendTo($results);
         groups[group] = $groupHeading;
       }
@@ -675,7 +675,7 @@ var defaultCallbacks = {
    *   The result object.
    *
    * @returns {String}
-   *   The group name. If no group, don't return anything.
+   *   The group name, may contain HTML. If no group, don't return anything.
    */
   getGroup: function(result) {
     if ($.type(result.group) == 'string') {
