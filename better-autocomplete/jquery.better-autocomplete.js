@@ -61,6 +61,10 @@
  *   </li><li>
  *     remoteTimeout: (default=10000) The timeout for remote (AJAX) calls.
  *   </li><li>
+ *     crossOrigin: (default=false) Set to true if cross origin requests will
+ *     be performed, i.e. that the remote URL has a different domain. This will
+ *     force Internet Explorer to use "jsonp" instead of "json" as datatype.
+ *   </li><li>
  *     selectKeys: (default=[9, 13]) The key codes for keys which will select
  *     the current highlighted element. The defaults are tab, enter.
  *   </li></ul>
@@ -155,6 +159,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     caseSensitive: false,
     cacheLimit: isLocal ? 0 : 256, // Number of result objects
     remoteTimeout: 10000, // milliseconds
+    crossOrigin: false,
     selectKeys: [9, 13] // [tab, enter]
   }, options);
 
@@ -406,7 +411,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
           callbacks.finishFetching($input);
         }
         redraw();
-      }, options.remoteTimeout);
+      }, options.remoteTimeout, options.crossOrigin);
     }
   };
 
@@ -627,10 +632,10 @@ var defaultCallbacks = {
    *   The preferred timeout for the request. This callback should respect
    *   the timeout.
    */
-  fetchRemoteData: function(url, completeCallback, timeout) {
+  fetchRemoteData: function(url, completeCallback, timeout, crossOrigin) {
     $.ajax({
       url: url,
-      dataType: 'json',
+      dataType: crossOrigin && !$.support.cors ? 'jsonp' : 'json',
       timeout: timeout,
       success: function(data, textStatus) {
         completeCallback(data);
