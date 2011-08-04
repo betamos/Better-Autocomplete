@@ -25,6 +25,10 @@ input.fetching {
   color: green;
 }
 
+p.warning {
+  color: red;
+}
+
 </style>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
@@ -47,31 +51,6 @@ var cities = [
   'Moscow'
 ];
 
-var colors = [
-  {
-    title: 'Red',
-    description: 'The color of the heart.',
-    group: 'Ground colors' // Grouping
-  },
-  'Yellow', // You can even mix real result objects with plain strings
-  {
-    title: 'Green',
-    description: 'If you look at your plants, they will likely be green.',
-    group: 'Ground colors'
-  }, {
-    title: 'Pink',
-    description: 'For ponies, it is a <em>very common</em> hair color.'
-  }, {
-    title: 'Blue',
-    description: 'Color of the sky and the ocean, what else can I say?',
-    group: 'Ground colors'
-  }, {
-    title: 'Beer',
-    description: 'I know, I know, it may not be a color, but who cares? ' +
-                 'This is a demonstration and I wan\'t to have a long text ' +
-                 'that wraps.'
-  }];
-
 var phoneNumbers = [{
   title: '011-234 009 13',
   description: 'James Johnsson'
@@ -89,7 +68,7 @@ $(document).ready(function() {
   $('#city').betterAutocomplete('init', cities, {}, {});
 
   // Local source, results objects array
-  $('#color').betterAutocomplete('init', colors, {}, {
+  $('#color').betterAutocomplete('init', 'json-colors.php', { charLimit: 1 }, {
     select: function(result, $input) { // Custom select callback
       $input.val(result.title);
       $('#last-selection').text('You selected ' + result.title);
@@ -98,7 +77,8 @@ $(document).ready(function() {
 
   // A remote JSON resource
   $('#geonames').betterAutocomplete('init',
-      'http://ws.geonames.org/searchJSON', { cacheLimit: 128 }, {
+      'http://ws.geonames.org/searchJSON',
+      { cacheLimit: 128, selectKeys: [13], crossOrigin: true }, {
     processRemoteData: function(data) {
       if ($.type(data) == 'object' && $.isArray(data.geonames))
         return data.geonames;
@@ -157,7 +137,13 @@ $(document).ready(function() {
   <input type="search" id="city" name="city" />
 </form>
 
-<h2>Local source, array of result objects</h2>
+<h2>Remote source, same origin, array of result objects, custom select callback</h2>
+
+<p class="warning">
+  This is a remote demonstration which requires server-side software. <br />
+  You must put the Better Autocomplete files on a PHP web server and access
+  <code>example.html</code> via http. See <code>colors-json.php</code>
+</p>
 
 <form>
   <label for="color">Please select a color</label><br />
@@ -165,14 +151,14 @@ $(document).ready(function() {
   <div id="last-selection">You have not yet selected anything.</div>
 </form>
 
-<h2>Remote source, geonames.org JSON API, custom select handler</h2>
+<h2>Remote source, cross origin (geonames.org JSON API), custom select callback</h2>
 
 <form>
   <label for="geonames">Find your favourite city!</label><br />
   <input type="text" id="geonames" name="geonames" />
 </form>
 
-<h2>Local source, using canonical query callback</h2>
+<h2>Local source, custom canonical query callback</h2>
 
 <form>
   <label for="phone">Search for a phone number (try formatting it any way)
