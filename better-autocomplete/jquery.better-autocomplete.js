@@ -205,32 +205,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     }
   };
 
-  inputEvents.keyup = function() {
-    var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
-    clearTimeout(timer);
-    // Indicate that timer is inactive
-    timer = null;
-    redraw();
-    if (query.length >= options.charLimit && !$.isArray(cache[query]) &&
-        $.inArray(query, activeRemoteCalls) == -1) {
-      // Fetching is required
-      $results.empty();
-      if (isLocal) {
-        fetchResults(query);
-      }
-      else {
-        timer = setTimeout(function() {
-          fetchResults(query);
-          timer = null;
-        }, options.delay);
-      }
-    }
-  };
-
-  // Input with type="search" have a clickable X which clears the input field.
-  inputEvents.click = function() {
-    redraw();
-  };
+  inputEvents.keyup = inputEvents.click = reprocess;
 
   $('.result', $results[0]).live({
     // When the user hovers a result with the mouse, highlight it.
@@ -375,7 +350,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     var result = $result.data('result');
     callbacks.select(result, $input);
     // Redraw again, if the callback changed focus or content
-    redraw();
+    reprocess();
   };
 
   /**
@@ -412,6 +387,32 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         }
         redraw();
       }, options.remoteTimeout, options.crossOrigin);
+    }
+  };
+
+  /**
+   * Reprocess the contents of the input field, fetch data and redraw if
+   * necessary.
+   */
+  function reprocess() {
+    var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
+    clearTimeout(timer);
+    // Indicate that timer is inactive
+    timer = null;
+    redraw();
+    if (query.length >= options.charLimit && !$.isArray(cache[query]) &&
+        $.inArray(query, activeRemoteCalls) == -1) {
+      // Fetching is required
+      $results.empty();
+      if (isLocal) {
+        fetchResults(query);
+      }
+      else {
+        timer = setTimeout(function() {
+          fetchResults(query);
+          timer = null;
+        }, options.delay);
+      }
     }
   };
 
