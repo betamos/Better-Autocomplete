@@ -104,7 +104,7 @@ $(document).ready(function() {
   });
 
   // Local source with canonical query callback
-  $('#phone').betterAutocomplete('init', phoneNumbers, {}, {
+  $('#phone').betterAutocomplete('init', phoneNumbers, { charLimit: 0 }, {
     canonicalQuery: function(rawQuery, caseSensitive) {
       // Strip away everything except digits
       var query = rawQuery.replace(/[^\d]/g, '');
