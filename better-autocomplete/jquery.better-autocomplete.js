@@ -631,6 +631,9 @@ var defaultCallbacks = {
    * @param {Number} timeout
    *   The preferred timeout for the request. This callback should respect
    *   the timeout.
+   *
+   * @param {Boolean} crossOrigin
+   *   True if a cross origin request should be performed.
    */
   fetchRemoteData: function(url, completeCallback, timeout, crossOrigin) {
     $.ajax({
