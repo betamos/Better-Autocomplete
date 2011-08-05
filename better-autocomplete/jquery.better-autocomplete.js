@@ -1,22 +1,37 @@
+
 /**
- * Better Autocomplete is a jQuery plugin.
+ * @fileOverview Better Autocomplete is a flexible jQuery plugin which offers
+ * rich text autocompletion, both from local and remote sources.
  *
  * @author Didrik Nordström, http://betamos.se/
+ *
+ * @version v1.0-dev
  *
  * @requires
  *   <ul><li>
  *   jQuery 1.4+
  *   </li><li>
- *   a modern web browser (not tested in IE)
+ *   IE7+ or any decent webkit/gecko-based web browser
  *   </li></ul>
+ *
+ * @preserve Better Autocomplete v1.0-dev
+ * https://github.com/betamos/Better-Autocomplete
+ *
+ * Copyright 2011, Didrik Nordström, http://betamos.se/
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ *
+ * Requires jQuery 1.4+
+ * http://jquery.com/
+ */
+
+/**
+ * Create or alter an autocomplete object instance that belongs to
+ * the elements in the selection. Make sure there are only text field elements
+ * in the selection.
  *
  * @constructor
  *
  * @name jQuery.betterAutocomplete
- *
- * @description Create or alter an autocomplete object instance that belongs to
- * the elements in the selection. Make sure there are only text field elements
- * in the selection.
  *
  * @param {String} method
  *   Should be one of the following:
