@@ -22,4 +22,3 @@ curl -s \
 # Convert the minified JS file to UTF-8
 iconv -f ISO-8859-1 -t UTF-8 $TEMP > $OUT
 rm $TEMP
-
