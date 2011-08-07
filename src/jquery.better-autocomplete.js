@@ -118,9 +118,7 @@ $.fn.betterAutocomplete = function(method) {
     destroy: function(bac) {
       bac.destroy();
     }
-  };
-
-  var args = Array.prototype.slice.call(arguments, 1);
+  }, args = Array.prototype.slice.call(arguments, 1);
 
   // Method calling logic
   this.each(function() {
@@ -166,7 +164,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     activeRemoteCalls = [], // A flat array of query strings that are pending
     disableMouseHighlight = false, // Suppress the autotriggered mouseover event
     inputEvents = {},
-    isLocal = ($.type(resource) != 'string');
+    isLocal = ($.type(resource) != 'string'),
+    $results = $('<ul />').addClass('better-autocomplete');
 
   options = $.extend({
     charLimit: isLocal ? 1 : 3,
@@ -179,9 +178,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   }, options);
 
   callbacks = $.extend({}, defaultCallbacks, callbacks);
-
-  var $results = $('<ul />')
-    .addClass('better-autocomplete');
 
   callbacks.insertSuggestionList($results, $input, options.maxHeight);
 
@@ -320,10 +316,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    */
   var setHighlighted = function(index, autoScroll) {
     // Scrolling upwards
-    var up = index == 0 || index < getHighlighted();
-    var $scrollTo = $('.result', $results)
-      .removeClass('highlight')
-      .eq(index).addClass('highlight');
+    var up = index == 0 || index < getHighlighted(),
+      $scrollTo = $('.result', $results)
+        .removeClass('highlight')
+        .eq(index).addClass('highlight');
 
     if (!autoScroll) {
       return;
