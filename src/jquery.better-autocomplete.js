@@ -165,7 +165,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     disableMouseHighlight = false, // Suppress the autotriggered mouseover event
     inputEvents = {},
     isLocal = ($.type(resource) != 'string'),
-    $results = $('<ul />').addClass('better-autocomplete');
+    $results = $('<ul />').addClass('better-autocomplete'),
+    hiddenResults = true; // $results are hidden
 
   options = $.extend({
     charLimit: isLocal ? 1 : 3,
@@ -451,11 +452,19 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     if (($input.is(':focus') || focus) && !$results.is(':empty')) {
       $results.filter(':hidden').show() // Show if hidden
         .scrollTop($results.data('scroll-top')); // Reset the lost scrolling
+      if (hiddenResults) {
+        hiddenResults = false;
+        callbacks.afterShow($results);
+      }
     }
     else if ($results.is(':visible')) {
       // Store the scrolling position for later
       $results.data('scroll-top', $results.scrollTop())
         .hide(); // Hiding it resets it's scrollTop
+      if (!hiddenResults) {
+        hiddenResults = true;
+        callbacks.afterHide($results);
+      }
     }
   };
 
@@ -728,6 +737,26 @@ var defaultCallbacks = {
   finishFetching: function($input) {
     $input.removeClass('fetching');
   },
+
+  /**
+   * Executed after the suggestion list has been shown.
+   *
+   * @param {Object} $results
+   *   The suggestion list UL element.
+   *
+   * <br /><br /><em>Default behavior: Nothing.</em>
+   */
+  afterShow: function($results) {},
+
+  /**
+   * Executed after the suggestion list has been hidden.
+   *
+   * @param {Object} $results
+   *   The suggestion list UL element.
+   *
+   * <br /><br /><em>Default behavior: Nothing.</em>
+   */
+  afterHide: function($results) {},
 
   /**
    * Construct the remote fetching URL.
