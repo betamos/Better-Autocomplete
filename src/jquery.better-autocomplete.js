@@ -826,6 +826,7 @@ var defaultCallbacks = {
         // Visually indicate that results are in the topmost layer
         boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)'
       })
+      .hide()
       .insertAfter($input);
   }
 };
