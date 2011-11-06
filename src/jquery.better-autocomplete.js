@@ -615,7 +615,7 @@ var defaultCallbacks = {
    *   From options.caseSensitive, the searching should be case sensitive.
    *
    * @returns {Array[Object]}
-   *   A flat array containing pure result objects. Must return an array.
+   *   A flat array containing pure result objects. May be an empty array.
    */
   queryLocalResults: function(query, resource, caseSensitive) {
     if (!$.isArray(resource)) {
@@ -699,7 +699,7 @@ var defaultCallbacks = {
    *   The raw data recieved from the server. Can be undefined.
    *
    * @returns {Array[Object]}
-   *   A flat array containing result objects. Must return an array.
+   *   A flat array containing result objects. May be an empty array.
    */
   processRemoteData: function(data) {
     if ($.isArray(data)) {
@@ -759,9 +759,9 @@ var defaultCallbacks = {
    * Executed after the suggestion list has been shown.
    *
    * @param {Object} $results
-   *   The suggestion list UL element.
+   *   The suggestion list UL element, wrapped in jQuery.
    *
-   * <br /><br /><em>Default behavior: Nothing.</em>
+   * <br /><br /><em>Default behavior: Does nothing.</em>
    */
   afterShow: function($results) {},
 
@@ -769,9 +769,9 @@ var defaultCallbacks = {
    * Executed after the suggestion list has been hidden.
    *
    * @param {Object} $results
-   *   The suggestion list UL element.
+   *   The suggestion list UL element, wrapped in jQuery.
    *
-   * <br /><br /><em>Default behavior: Nothing.</em>
+   * <br /><br /><em>Default behavior: Does nothing.</em>
    */
   afterHide: function($results) {},
 
