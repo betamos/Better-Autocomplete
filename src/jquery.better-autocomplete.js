@@ -166,7 +166,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     inputEvents = {},
     isLocal = ($.type(resource) != 'string'),
     $results = $('<ul />').addClass('better-autocomplete'),
-    hiddenResults = true; // $results are hidden
+    hiddenResults = true, // $results are hidden
+    preventBlurTimer = null; // IE bug workaround, see below in code.
 
   options = $.extend({
     charLimit: isLocal ? 1 : 3,
@@ -183,11 +184,20 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   callbacks.insertSuggestionList($results, $input, options.maxHeight);
 
   inputEvents.focus = function() {
-    redraw(true);
+    // If the blur timer is active, a redraw is redundant.
+    preventBlurTimer || redraw(true);
   };
 
   inputEvents.blur = function() {
-    redraw();
+    // If the blur prevention timer is active, refocus the input, since the
+    // blur event can not be cancelled.
+    if (preventBlurTimer) {
+      $input.focus();
+    }
+    else {
+      // The input has already lost focus, so redraw the suggestion list.
+      redraw();
+    }
   };
 
   inputEvents.keydown = function(event) {
@@ -238,8 +248,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   });
 
   // Prevent blur when clicking on group titles, scrollbars etc.,
-  // This event is triggered after the others' because of bubbling order.
+  // This event is triggered after the others because of bubbling.
   $results.mousedown(function() {
+    // Bug in IE where clicking on scrollbar would trigger a blur event for the
+    // input field, despite using preventDefault() on the mousedown event.
+    // This workaround locks the blur event on the input for a small time.
+    clearTimeout(preventBlurTimer);
+    preventBlurTimer = setTimeout(function() {
+      preventBlurTimer = null;
+    }, 50);
     return false;
   });
 
