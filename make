@@ -3,6 +3,10 @@
 # Generate documenation to the docs folder
 jsdoc -d=docs src/
 
+# Flush build directory
+rm -Rf build
+mkdir build
+
 # Copy CSS from src to build
 cp src/better-autocomplete.css build/
 
