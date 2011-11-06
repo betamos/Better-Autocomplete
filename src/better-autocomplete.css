@@ -23,6 +23,7 @@
   overflow: auto;
   cursor: default;
   background: white;
+  border-bottom: 1px solid #bfbfbf;
 }
 
 /* Groups */
