@@ -71,10 +71,6 @@
   margin: 0;
 }
 
-.better-autocomplete > .result:last-child {
-  border-bottom: 1px solid #bfbfbf;
-}
-
 /* Highlighting */
 
 .better-autocomplete > .result.highlight {
