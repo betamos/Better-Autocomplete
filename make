@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Generate documenation to the docs folder
-jsdoc -d=docs src/
+jsrun.sh -d=docs src/
 
 # Flush build directory
 rm -Rf build
