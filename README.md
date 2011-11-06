@@ -10,17 +10,13 @@ Requirements
 ------------
 
  * jQuery 1.4+
- * A modern web browser *or* Internet Explorer 7+
+ * A modern desktop web browser *or* Internet Explorer 7+
 
-The state of this project
--------------------------
+*Actually, Better Autocomplete probably works fine for many mobile device web browsers
+as well, but for now they are not supported.*
 
-This plugin is as good as ready in many ways and is developed over a couple of
-months, so the codebase is solid and tested in multiple environments. This
-project will enter RC stage as soon as all critical IE bugs have been fixed.
-
-Demo and docs
--------------
+Demo and documentation
+----------------------
 
 Try the [demonstration](http://betamos.se/better-autocomplete/demo/index.html)
 and browse the
@@ -32,11 +28,28 @@ Customizing
 The most powerful ability of this plugin, compared to others, is that it is
 very flexible. There are settings and callbacks for almost every aspect of the
 plugin. The callbacks can be overridden easily by you to customize the
-behavior. See the docs for details.
+behavior. Read documentation for details.
 
 If there is one callback that will do you more good than anyone else, it is the
 [select callback](http://betamos.se/better-autocomplete/docs/symbols/callbacks.html#select).
-In the demo, there are sample implementations of it. Check the source code.
+For sample implementations, check demo directory.
+
+Building instructions
+---------------------
+
+It works perfectly fine to use the contents of the src directory as is, but it
+is also possible to generate a minified version of the JavaScript file
+(using [Google Closure Compiler](http://code.google.com/closure/compiler/)).
+
+To generate minified code you need curl in your `PATH` and an internet
+connection.
+
+To generate documentation you need to download and configure
+[JsDoc Toolkit](http://code.google.com/p/jsdoc-toolkit/) so
+that you have `jsrun.sh` in your `PATH`.
+
+Then just run `./make` in the Better Autocomplete root directory.
+This will create the directories `build` and `docs`.
 
 Author and license
 ------------------
