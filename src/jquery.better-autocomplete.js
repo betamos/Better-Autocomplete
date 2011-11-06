@@ -5,7 +5,7 @@
  *
  * @author Didrik Nordström, http://betamos.se/
  *
- * @version v1.0-dev
+ * @version v1.0
  *
  * @requires
  *   <ul><li>
