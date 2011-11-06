@@ -181,7 +181,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   callbacks = $.extend({}, defaultCallbacks, callbacks);
 
-  callbacks.insertSuggestionList($results, $input, options.maxHeight);
+  callbacks.insertSuggestionList($results, $input);
 
   inputEvents.focus = function() {
     // If the blur timer is active, a redraw is redundant.
