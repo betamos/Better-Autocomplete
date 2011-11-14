@@ -37,19 +37,16 @@ For sample implementations, check demo directory.
 Building instructions
 ---------------------
 
-It works perfectly fine to use the contents of the src directory as is, but it
-is also possible to generate a minified version of the JavaScript file
+It works perfectly fine to use the contents of the `src` directory as is,
+but it is also possible to generate a minified version of the JavaScript file
 (using [Google Closure Compiler](http://code.google.com/closure/compiler/)).
 
-To generate minified code you need curl in your `PATH` and an internet
-connection.
+Just run `make` from the command line to generate minified JS (you need curl
+and an internet connection). Then check out the `build` directory.
 
 To generate documentation you need to download and configure
-[JsDoc Toolkit](http://code.google.com/p/jsdoc-toolkit/) so
-that you have `jsrun.sh` in your `PATH`.
-
-Then just run `./make` in the Better Autocomplete root directory.
-This will create the directories `build` and `docs`.
+[JsDoc Toolkit](http://code.google.com/p/jsdoc-toolkit/) so that you have
+`jsrun.sh` in your `PATH`. Then run `make html` from the command line.
 
 Author and license
 ------------------
