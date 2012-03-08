@@ -155,6 +155,7 @@ $.fn.betterAutocomplete = function(method) {
  *   A single input element wrapped in jQuery.
  */
 var BetterAutocomplete = function($input, resource, options, callbacks) {
+  var $this = this;
 
   var lastRenderedQuery = '',
     cache = {}, // Key-valued caching of search results
@@ -165,11 +166,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     disableMouseHighlight = false, // Suppress the autotriggered mouseover event
     inputEvents = {},
     isLocal = ($.type(resource) != 'string'),
-    $results = $('<ul />').addClass('better-autocomplete'),
     hiddenResults = true, // $results are hidden
     preventBlurTimer = null; // IE bug workaround, see below in code.
 
-  options = $.extend({
+  this.options = $.extend({
     charLimit: isLocal ? 1 : 3,
     delay: 350, // milliseconds
     caseSensitive: false,
@@ -179,9 +179,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     selectKeys: [9, 13] // [tab, enter]
   }, options);
 
-  callbacks = $.extend({}, defaultCallbacks, callbacks);
+  this.callbacks = $.extend({}, defaultCallbacks, callbacks);
 
-  callbacks.insertSuggestionList($results, $input);
+  $results = this.callbacks.resultsElement();
+
+  this.callbacks.insertSuggestionList($results, $input);
 
   inputEvents.focus = function() {
     // If the blur timer is active, a redraw is redundant.
@@ -219,7 +221,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       return false;
     }
     // A select key has been pressed
-    else if ($.inArray(event.keyCode, options.selectKeys) >= 0 &&
+    else if ($.inArray(event.keyCode, $this.options.selectKeys) >= 0 &&
              !event.shiftKey && !event.ctrlKey && !event.altKey &&
              !event.metaKey) {
       select();
@@ -314,7 +316,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var cacheResults = function(query, results) {
     cacheSize += results.length;
     // Now reduce size until it fits
-    while (cacheSize > options.cacheLimit && cacheOrder.length) {
+    while (cacheSize > $this.options.cacheLimit && cacheOrder.length) {
       var key = cacheOrder.shift();
       cacheSize -= cache[key].length;
       delete cache[key];
@@ -377,7 +379,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       return; // No selectable element
     }
     var result = $result.data('result');
-    callbacks.select(result, $input);
+    $this.callbacks.select(result, $input);
     // Redraw again, if the callback changed focus or content
     reprocess();
   };
@@ -392,17 +394,16 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   var fetchResults = function(query) {
     // Synchronously fetch local data
     if (isLocal) {
-      cacheResults(query, callbacks.queryLocalResults(query, resource,
-                                                      options.caseSensitive));
+      cacheResults(query, $this.callbacks.queryLocalResults(query, resource, $this.options.caseSensitive));
       redraw();
     }
     // Asynchronously fetch remote data
     else {
       activeRemoteCalls.push(query);
-      var url = callbacks.constructURL(resource, query);
-      callbacks.beginFetching($input);
-      callbacks.fetchRemoteData(url, function(data) {
-        var searchResults = callbacks.processRemoteData(data);
+      var url = $this.callbacks.constructURL(resource, query);
+      $this.callbacks.beginFetching($input);
+      $this.callbacks.fetchRemoteData(url, function(data) {
+        var searchResults = $this.callbacks.processRemoteData(data);
         if (!$.isArray(searchResults)) {
           searchResults = [];
         }
@@ -412,10 +413,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
           return value != query;
         });
         if (!activeRemoteCalls.length) {
-          callbacks.finishFetching($input);
+          $this.callbacks.finishFetching($input);
         }
         redraw();
-      }, options.remoteTimeout, options.crossOrigin);
+      }, $this.options.remoteTimeout, $this.options.crossOrigin);
     }
   };
 
@@ -424,12 +425,12 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    * necessary.
    */
   function reprocess() {
-    var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
+    var query = $this.callbacks.canonicalQuery($input.val(), $this.options.caseSensitive);
     clearTimeout(timer);
     // Indicate that timer is inactive
     timer = null;
     redraw();
-    if (query.length >= options.charLimit && !$.isArray(cache[query]) &&
+    if (query.length >= $this.options.charLimit && !$.isArray(cache[query]) &&
         $.inArray(query, activeRemoteCalls) == -1) {
       // Fetching is required
       $results.empty();
@@ -440,7 +441,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         timer = setTimeout(function() {
           fetchResults(query);
           timer = null;
-        }, options.delay);
+        }, $this.options.delay);
       }
     }
   };
@@ -452,7 +453,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    *   (default=false) Force to treat the input element like it's focused.
    */
   var redraw = function(focus) {
-    var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
+    var query = $this.callbacks.canonicalQuery($input.val(), $this.options.caseSensitive);
 
     // The query does not exist in db
     if (!$.isArray(cache[query])) {
@@ -471,7 +472,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .scrollTop($results.data('scroll-top')); // Reset the lost scrolling
       if (hiddenResults) {
         hiddenResults = false;
-        callbacks.afterShow($results);
+        $this.callbacks.afterShow($results);
       }
     }
     else if ($results.is(':visible')) {
@@ -480,7 +481,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .hide(); // Hiding it resets it's scrollTop
       if (!hiddenResults) {
         hiddenResults = true;
-        callbacks.afterHide($results);
+        $this.callbacks.afterHide($results);
       }
     }
   };
@@ -501,13 +502,13 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         return; // Continue
       }
 
-      var output = callbacks.themeResult(result);
+      var output = $this.callbacks.themeResult(result);
       if ($.type(output) != 'string') {
         return; // Continue
       }
 
       // Add the group if it doesn't exist
-      var group = callbacks.getGroup(result);
+      var group = $this.callbacks.getGroup(result);
       if ($.type(group) == 'string' && !groups[group]) {
         var $groupHeading = $('<li />').addClass('group')
           .append($('<h3 />').html(group))
@@ -792,7 +793,7 @@ var defaultCallbacks = {
    *   The URL, ready for fetching.
    */
   constructURL: function(path, query) {
-    return path + '?q=' + encodeURIComponent(query);
+    return path + (path.indexOf('?') > -1 ? '&' : '?') + 'q=' + encodeURIComponent(query);
   },
 
   /**
@@ -816,6 +817,10 @@ var defaultCallbacks = {
       query = query.toLowerCase();
     }
     return query;
+  },
+
+  resultsElement: function () {
+    return $('<ul />').addClass('better-autocomplete');
   },
 
   /**
