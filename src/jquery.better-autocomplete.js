@@ -82,6 +82,8 @@
  *   </li><li>
  *     selectKeys: (default=[9, 13]) The key codes for keys which will select
  *     the current highlighted element. The defaults are tab, enter.
+ *   </li><li>
+ *     autoHighlight: (default=true) Automatically highlight the first result.
  *   </li></ul>
  *
  * @param {Object} [callbacks]
@@ -176,7 +178,8 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     cacheLimit: isLocal ? 0 : 256, // Number of result objects
     remoteTimeout: 10000, // milliseconds
     crossOrigin: false,
-    selectKeys: [9, 13] // [tab, enter]
+    selectKeys: [9, 13], // [tab, enter]
+    autoHighlight: true // Automatically highlight the topmost result
   }, options);
 
   callbacks = $.extend({}, defaultCallbacks, callbacks);
@@ -201,9 +204,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   };
 
   inputEvents.keydown = function(event) {
-    var index = getHighlighted();
+    var index = getHighlighted(),
+      hasResults = ($results.children().length && index < 0) || index >= 0;
     // If an arrow key is pressed and a result is highlighted
-    if ($.inArray(event.keyCode, [38, 40]) >= 0 && index >= 0) {
+    if ($.inArray(event.keyCode, [38, 40]) >= 0 && hasResults) {
       var newIndex,
         size = $('.result', $results).length;
       switch (event.keyCode) {
@@ -463,7 +467,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
       renderResults(cache[query]);
-      setHighlighted(0);
+      if (options.autoHighlight) {
+        setHighlighted(0);
+      }
     }
     // Finally show/hide based on focus and emptiness
     if (($input.is(':focus') || focus) && !$results.is(':empty')) {
