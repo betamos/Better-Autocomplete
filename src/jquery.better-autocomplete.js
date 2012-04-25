@@ -778,7 +778,7 @@ var defaultCallbacks = {
   /**
    * Construct the remote fetching URL.
    *
-   * <br /><br /><em>Default behavior: Adds "?q=query" to the path. The query
+   * <br /><br /><em>Default behavior: Adds "?q=<query>" to the path. The query
    * string is URL encoded.</em>
    *
    * @param {String} path
