@@ -18,7 +18,7 @@ as well, but for now they are not supported.*
 Demo and documentation
 ----------------------
 
-Try the [demonstration](http://betamos.se/better-autocomplete/demo/index.html)
+Try the [demonstration](http://betamos.se/better-autocomplete/examples/examples.html)
 and browse the
 [documentation](http://betamos.se/better-autocomplete/docs/index.html).
 
@@ -32,7 +32,7 @@ behavior. Read documentation for details.
 
 If there is one callback that will do you more good than anyone else, it is the
 [select callback](http://betamos.se/better-autocomplete/docs/symbols/callbacks.html#select).
-For sample implementations, check demo directory.
+For sample implementations, check examples directory.
 
 Building instructions
 ---------------------
