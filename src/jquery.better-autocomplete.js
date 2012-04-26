@@ -508,7 +508,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
       renderResults(cache[query]);
-      if (options.autoHighlight) {
+      if (options.autoHighlight && $('.result', $results).length > 0) {
         setHighlighted(0, 'auto');
       }
     }
