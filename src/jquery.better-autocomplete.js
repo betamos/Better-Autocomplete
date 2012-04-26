@@ -426,8 +426,16 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   /**
    * Reprocess the contents of the input field, fetch data and redraw if
    * necessary.
+   *
+   * @param {Object} [event]
+   *   The event that triggered the reprocessing. Not always present.
    */
-  function reprocess() {
+  function reprocess(event) {
+    // If this call was triggered by an arrow key, cancel the reprocessing.
+    if ($.type(event) == 'object' && event.type == 'keyup' &&
+        $.inArray(event.keyCode, [38, 40]) >= 0) {
+      return;
+    }
     var query = callbacks.canonicalQuery($input.val(), options.caseSensitive);
     clearTimeout(timer);
     // Indicate that timer is inactive
