@@ -232,7 +232,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
   inputEvents.keyup = inputEvents.click = reprocess;
 
-  $($results).delegate('.result', {
+  $results.delegate('.result', {
     // When the user hovers a result with the mouse, highlight it.
     mouseenter: function() {
       if (disableMouseHighlight) {
