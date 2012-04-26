@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Better Autocomplete</title>
+<title>Better Autocomplete examples</title>
 
 <link rel="stylesheet" href="../src/better-autocomplete.css" />
 
@@ -135,38 +135,39 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-<h1>Better Autocomplete demonstration</h1>
 
-<form>
+  <h1>Better Autocomplete demonstration</h1>
 
-  <h2>Local source, flat string array, HTML5 search input</h2>
-  <label for="city">Please select a city</label><br />
-  <input type="search" id="city" name="city" />
+  <form>
 
-  <h2>Same but no auto highlight, custom highlight callback (Google style)</h2>
-  <label for="city-custom">Please select another city</label><br />
-  <input type="search" id="city-custom" name="city-custom" />
+    <h2>Local source, flat string array, HTML5 search input</h2>
+    <label for="city">Please select a city</label><br />
+    <input type="search" id="city" name="city" />
 
-  <h2>Remote source, same origin, array of result objects, custom select callback</h2>
-  <p class="warning">
-    This is a remote demonstration which requires server-side software. <br />
-    You must put the Better Autocomplete files on a PHP web server and access
-    <code>example.html</code> via http. See <code>colors-json.php</code>
-  </p>
-  <label for="color">Please select a color</label><br />
-  <input type="text" id="color" name="color" />
-  <div id="last-selection">You have not yet selected anything.</div>
+    <h2>Same but no auto highlight, custom highlight callback (Google style)</h2>
+    <label for="city-custom">Please select another city</label><br />
+    <input type="search" id="city-custom" name="city-custom" />
 
-  <h2>Remote source, cross origin (geonames.org JSON API), custom select callback</h2>
-  <label for="geonames">Find your favourite city!</label><br />
-  <input type="text" id="geonames" name="geonames" />
+    <h2>Remote source, same origin, array of result objects, custom select callback</h2>
+    <p class="warning">
+      This is a remote demonstration which requires server-side software. <br />
+      You must put the Better Autocomplete files on a PHP web server and access
+      <code>example.html</code> via http. See <code>colors-json.php</code>
+    </p>
+    <label for="color">Please select a color</label><br />
+    <input type="text" id="color" name="color" />
+    <div id="last-selection">You have not yet selected anything.</div>
 
-  <h2>Local source, custom canonical query callback</h2>
-  <label for="phone">Search for a phone number (try formatting it any way)
-  </label><br />
-  <input type="text" id="phone" name="phone" />
+    <h2>Remote source, cross origin (geonames.org JSON API), custom select callback</h2>
+    <label for="geonames">Find your favourite city!</label><br />
+    <input type="text" id="geonames" name="geonames" />
 
-</form>
+    <h2>Local source, custom canonical query callback</h2>
+    <label for="phone">Search for a phone number (try formatting it any way)
+    </label><br />
+    <input type="text" id="phone" name="phone" />
+
+  </form>
 
 </body>
 </html>
