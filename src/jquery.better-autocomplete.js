@@ -263,6 +263,13 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     return false;
   });
 
+  // If auto highlight is off, remove highlighting
+  $results.mouseleave(function() {
+    if (!options.autoHighlight) {
+      setHighlighted(-1);
+    }
+  });
+
   /*
    * PUBLIC METHODS
    */
