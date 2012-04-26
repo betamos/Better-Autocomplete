@@ -860,8 +860,8 @@ var defaultCallbacks = {
   /**
    * Construct the remote fetching URL.
    *
-   * <br /><br /><em>Default behavior: Adds "?q=<query>" to the path. The query
-   * string is URL encoded.</em>
+   * <br /><br /><em>Default behavior: Adds "?q=<query>" or "&q=<query>" to the
+   * path. The query string is URL encoded.</em>
    *
    * @param {String} path
    *   The path given in the {@link jQuery.betterAutocomplete} constructor.
@@ -874,7 +874,7 @@ var defaultCallbacks = {
    *   The URL, ready for fetching.
    */
   constructURL: function(path, query) {
-    return path + '?q=' + encodeURIComponent(query);
+    return path + (path.indexOf('?') > -1 ? '&' : '?') + 'q=' + encodeURIComponent(query);
   },
 
   /**
