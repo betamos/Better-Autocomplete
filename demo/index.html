@@ -66,6 +66,14 @@ $(document).ready(function() {
   //Local source, string array. Simplest setup possible
   $('#city').betterAutocomplete('init', cities, {}, {});
 
+  // Google style autocomplete
+  $('#city-custom').betterAutocomplete('init', cities, { autoHighlight: false }, {
+    highlight: function(result, $input, trigger) {
+      if (trigger == 'key')
+        $input.val(result.title)
+    }
+  });
+
   // Local source, results objects array
   $('#color').betterAutocomplete('init', 'json-colors.php', { charLimit: 1 }, {
     select: function(result, $input) { // Custom select callback
@@ -134,6 +142,13 @@ $(document).ready(function() {
 <form>
   <label for="city">Please select a city</label><br />
   <input type="search" id="city" name="city" />
+</form>
+
+<h2>Same but no auto highlight, custom highlight callback (Google style)</h2>
+
+<form>
+  <label for="city-custom">Please select another city</label><br />
+  <input type="search" id="city-custom" name="city-custom" />
 </form>
 
 <h2>Remote source, same origin, array of result objects, custom select callback</h2>
