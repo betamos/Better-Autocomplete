@@ -919,11 +919,7 @@ var defaultCallbacks = {
       .css({
         position: 'absolute',
         left: $input.position().left,
-        top: $input.position().top + $input.outerHeight(),
-        zIndex: 10,
-        maxHeight: '330px',
-        // Visually indicate that results are in the topmost layer
-        boxShadow: '0 0 15px rgba(0, 0, 0, 0.5)'
+        top: $input.position().top + $input.outerHeight()
       })
       .hide()
       .insertAfter($input);
