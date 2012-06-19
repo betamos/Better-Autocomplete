@@ -211,7 +211,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         size = $('.result', $results).length;
       switch (event.keyCode) {
       case 38: // Up arrow
-        newIndex = Math.max(0, index - 1);
+        newIndex = Math.max(-1, index - 1);
         break;
       case 40: // Down arrow
         newIndex = Math.min(size - 1, index + 1);
