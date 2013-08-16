@@ -362,7 +362,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
 
     if (prevIndex != index) {
       var result = getResultByIndex(index);
-      callbacks.highlight(result, $input, trigger);
+      $this.callbacks.highlight(result, $input, trigger);
     }
 
     // Scrolling
