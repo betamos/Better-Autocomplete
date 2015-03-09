@@ -371,6 +371,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     $resultList.eq(index).addClass('highlight')
 
     if (prevIndex != index) {
+      $ariaLive.html($resultList.eq(index).html());
       var result = getResultByIndex(index);
       callbacks.highlight(result, $input, trigger);
     }
@@ -458,6 +459,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else {
       activeRemoteCalls.push(query);
       var url = callbacks.constructURL(resource, query);
+      $ariaLive.html('Searching for matches...');
       callbacks.beginFetching($input);
       callbacks.fetchRemoteData(url, function(data) {
         var searchResults = callbacks.processRemoteData(data);
@@ -539,6 +541,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .scrollTop($results.data('scroll-top')); // Reset the lost scrolling
       if (hiddenResults) {
         hiddenResults = false;
+        $ariaLive.html('Autocomplete popup');
         callbacks.afterShow($results);
       }
     }
@@ -548,6 +551,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .hide(); // Hiding it resets it's scrollTop
       if (!hiddenResults) {
         hiddenResults = true;
+        $ariaLive.empty();
         callbacks.afterHide($results);
       }
     }
