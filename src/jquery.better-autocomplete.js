@@ -168,6 +168,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     inputEvents = {},
     isLocal = ($.type(resource) != 'string'),
     $results = $('<ul />').addClass('better-autocomplete'),
+    $ariaLive = null,
     hiddenResults = true, // $results are hidden
     preventBlurTimer = null; // IE bug workaround, see below in code.
 
@@ -281,8 +282,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Turn off the browser's autocompletion
     $input
       .attr('autocomplete', 'OFF')
-      .attr('aria-autocomplete', 'list');
+      .attr('aria-autocomplete', 'list')
+      .parent()
+      .attr('role', 'application')
+      .append($('<span class="better-autocomplete-aria"></span>').attr({
+        'aria-live': 'assertive',
+        'id': $input.attr('id') + '-autocomplete-aria-live'
+      }));
     $input.bind(inputEvents);
+    $ariaLive = $('#' + $input.attr('id') + '-autocomplete-aria-live');
   };
 
   /**
@@ -291,8 +299,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   this.disable = function() {
     $input
       .removeAttr('autocomplete')
-      .removeAttr('aria-autocomplete');
+      .removeAttr('aria-autocomplete')
+      .parent()
+      .removeAttr('role');
     $results.hide();
+    $ariaLive.empty();
     $input.unbind(inputEvents);
   };
 
@@ -301,6 +312,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    */
   this.destroy = function() {
     $results.remove();
+    $ariaLive.remove();
     $input.unbind(inputEvents);
     $input.removeData('better-autocomplete');
   };
