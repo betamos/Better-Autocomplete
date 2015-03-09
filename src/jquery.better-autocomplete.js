@@ -531,9 +531,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
       renderResults(cache[query]);
-      if (options.autoHighlight && $('.result', $results).length > 0) {
-        setHighlighted(0, 'auto');
-      }
     }
     // Finally show/hide based on focus and emptiness
     if (($input.is(':focus') || focus) && !$results.is(':empty')) {
@@ -542,6 +539,9 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
       if (hiddenResults) {
         hiddenResults = false;
         $ariaLive.html('Autocomplete popup');
+        if (options.autoHighlight && $('.result', $results).length > 0) {
+          setHighlighted(0, 'auto');
+        }
         callbacks.afterShow($results);
       }
     }
