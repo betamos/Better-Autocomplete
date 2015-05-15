@@ -168,6 +168,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     inputEvents = {},
     isLocal = ($.type(resource) != 'string'),
     $results = $('<ul />').addClass('better-autocomplete'),
+    $ariaLive = null,
     hiddenResults = true, // $results are hidden
     preventBlurTimer = null; // IE bug workaround, see below in code.
 
@@ -281,8 +282,15 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     // Turn off the browser's autocompletion
     $input
       .attr('autocomplete', 'OFF')
-      .attr('aria-autocomplete', 'list');
+      .attr('aria-autocomplete', 'list')
+      .parent()
+      .attr('role', 'application')
+      .append($('<span class="better-autocomplete-aria"></span>').attr({
+        'aria-live': 'assertive',
+        'id': $input.attr('id') + '-autocomplete-aria-live'
+      }));
     $input.bind(inputEvents);
+    $ariaLive = $('#' + $input.attr('id') + '-autocomplete-aria-live');
   };
 
   /**
@@ -291,8 +299,11 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
   this.disable = function() {
     $input
       .removeAttr('autocomplete')
-      .removeAttr('aria-autocomplete');
+      .removeAttr('aria-autocomplete')
+      .parent()
+      .removeAttr('role');
     $results.hide();
+    $ariaLive.empty();
     $input.unbind(inputEvents);
   };
 
@@ -301,6 +312,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
    */
   this.destroy = function() {
     $results.remove();
+    $ariaLive.remove();
     $input.unbind(inputEvents);
     $input.removeData('better-autocomplete');
   };
@@ -359,6 +371,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     $resultList.eq(index).addClass('highlight')
 
     if (prevIndex != index) {
+      $ariaLive.html($resultList.eq(index).html());
       var result = getResultByIndex(index);
       callbacks.highlight(result, $input, trigger);
     }
@@ -446,6 +459,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else {
       activeRemoteCalls.push(query);
       var url = callbacks.constructURL(resource, query);
+      $ariaLive.html('Searching for matches...');
       callbacks.beginFetching($input);
       callbacks.fetchRemoteData(url, function(data) {
         var searchResults = callbacks.processRemoteData(data);
@@ -517,9 +531,6 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
     else if (lastRenderedQuery !== query) {
       lastRenderedQuery = query;
       renderResults(cache[query]);
-      if (options.autoHighlight && $('.result', $results).length > 0) {
-        setHighlighted(0, 'auto');
-      }
     }
     // Finally show/hide based on focus and emptiness
     if (($input.is(':focus') || focus) && !$results.is(':empty')) {
@@ -527,6 +538,10 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .scrollTop($results.data('scroll-top')); // Reset the lost scrolling
       if (hiddenResults) {
         hiddenResults = false;
+        $ariaLive.html('Autocomplete popup');
+        if (options.autoHighlight && $('.result', $results).length > 0) {
+          setHighlighted(0, 'auto');
+        }
         callbacks.afterShow($results);
       }
     }
@@ -536,6 +551,7 @@ var BetterAutocomplete = function($input, resource, options, callbacks) {
         .hide(); // Hiding it resets it's scrollTop
       if (!hiddenResults) {
         hiddenResults = true;
+        $ariaLive.empty();
         callbacks.afterHide($results);
       }
     }
