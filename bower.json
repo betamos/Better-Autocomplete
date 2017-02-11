@@ -1,0 +1,27 @@
+{
+  "name": "Better-Autocomplete",
+  "homepage": "https://github.com/betamos/Better-Autocomplete",
+  "authors": [
+    "Didrik Nordström <didrik@betamos.se>"
+  ],
+  "description": "A highly flexible jQuery plugin for auto-completion and auto-suggestion from both local and remote sources.",
+  "main": [
+    "src/jquery.better-autocomplete.js",
+    "src/better-autocomplete.css",
+  ],
+  "dependencies": {
+    "jquery": ">=1.7"
+  },
+  "keywords": [
+    "auto-complete",
+    "auto-suggest"
+  ],
+  "license": "MIT or GPL Version 2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
